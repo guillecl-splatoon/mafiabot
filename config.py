@@ -1,4 +1,4 @@
-OWNER_ID = '126798033655562240'
+sOWNER_ID = '126798033655562240'
 BOT_PREFIX = '='
 TOKEN = 'NDQ0NTQ3MzkwODM0MzQzOTQ2.DddhTA.vErPO97WXig2JCZYm_IWb-p7alk'
 GAME_CHANNEL = '444556549533466624'
@@ -14,7 +14,7 @@ TOKEN_RESET = 10
 IGNORE_THRESHOLD = 7
 NOTIFY_FILE = 'notify.txt'
 BACKUP_INTERVAL = 300
-MESSAGE_LANGUAGE = 'en'
+MESSAGE_LANGUAGE = 'es'
 LOG_FILE = 'debug.txt'
 MIN_LOG_LEVEL = 2
 # 0 to log everything, 1 to log only gameplay-related info, 2 to log only warnings
