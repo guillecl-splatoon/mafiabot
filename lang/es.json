@@ -3,29 +3,24 @@
 		"Pong!"
 	],
 	"maxplayers": [
-		"The maximum number of players ({0}) have already joined the game.",
-		"There's no room left for you to join this game. There are already {0} players in this lobby."
+		"El máximo número de jugadores ({0}) ya entró a este juego.",
+		"No queda espacio para que te unas a este juego. Ya hay {0} jugadores en esta sala."
 	],
 	"minplayers": [
-		"APlease wait until there are at least {0} players.",
-		"AYou cannot start the game until there are at least {0} players."
+		"Por favor espera hasta que hayan {0} jugadores.",
+		"No puedes iniciar el juego hasta que hayan al menos {0} jugadores."
 	],
 	"notplayingstart": [
-		"You are not playing, so you cannot start the game! Type `!join` to join the game."
+		"No estás jugando, así que no puedes comenzar el juego! Escribe `{p}join` para unirte al juego."
 	],
 	"notplayingleave": [
-		"You cannot leave a game you are not playing!"
+		"No puedes abandonar un juego en el que no estás jugando!"
 	],
 	"alreadyin": [
-		"You are already playing!",
-		"You are already in!"
+		"Ya estás dentro del juego!"
 	],
 	"leavelobby": [
-		"**{0}** left the game. There are now **{1}** players in the lobby.",
-		"**{0}** walked out of the lobby. There are now **{1}** players in the lobby.",
-		"**{0}** was shot twice by a hunter, once in the head and once in the heart. Remaining players: **{1}**",
-		"**{0}** poked a bear in the eye with a stick and has paid the price. Remaining players: **{1}**",
-		"**{0}** was hit by a humongous yellow bullet from a giant yellow tank. The **{1}** remaining players cower in fear."
+		"**{0}** dejó el juego. Ahora hay **{1}** jugadores en la sala."
 	],
 	"gamestart": [
 		"**{0}** has started a game of Werewolf. Type `{p}join` to join. Type `{p}start` to start the game.",
