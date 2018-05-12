@@ -11,7 +11,7 @@
 		"No puedes iniciar el juego hasta que hayan al menos {0} jugadores."
 	],
 	"notplayingstart": [
-		"No estás jugando, así que no puedes comenzar el juego! Escribe `{p}join` para unirte al juego."
+		"No estás jugando, así que no puedes comenzar el juego! Escribe `{p}join` para unirte."
 	],
 	"notplayingleave": [
 		"No puedes abandonar un juego en el que no estás jugando!"
@@ -31,16 +31,9 @@
 		"Huellas y mechones de pelo rodean la ciudad, pero al parecer todos están ilesos."
 	],
 	"lynched": [
-		"The villagers have agreed to lynch **{0}**, a **{1}**.",
-		"The villagers perform surgery to obtain the heart of **{0}**, now known to be a **{1}**. They put it in a plastic cup.",
-		"The villagers perform surgery to obtain the brains of **{0}**, now known to be a **{1}**. They seal it in a glass jar.",
-		"Reluctantly, the villagers lead **{0}** to the gallows, who is later found to be a **{1}**.",
-		"The villagers sacrifice **{0}** to the belunga god, who is satisfied with the **{1}** for now.",
-		"For SCIENCE, the villagers throw **{0}** into a volcano. They discover that the melting point of a **{1}** is less than that of lava.",
-		"The villagers force **{0}** to play Russian Roulette. The town square is stained with the remains of the **{1}**.",
-		"The villagers, after much debate, finally decide on lynching **{0}**, who turned out to be... a **{1}**.",
-		"After a prolonged struggle, **{0}** is forced to the gallows, and is discovered after death to be a **{1}**.",
-		"The villagers choose to hang **{0}**; however, the rope stretches and breaks, and the ensuing fall kills the **{1}**."
+		"Los aldeanos acordaron linchar a **{0}**, un **{1}**.",
+		"Los aldeanos fuerzan a **{0}** a jugar a la Ruleta Rusa. La plaza del pueblo está manchada con los restos de un **{1}**.",
+		"Los aldeanos, luego de discutir, finalmente deciden linchar a **{0}**, que resultó ser... un **{1}**."
 	],
 	"hastotem": [
 		"**{0}** is in possession of a mysterious totem..."
