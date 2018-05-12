@@ -23,8 +23,7 @@
 		"**{0}** dejó el juego. Ahora hay **{1}** jugadores en la sala."
 	],
 	"gamestart": [
-		"**{0}** has started a game of Werewolf. Type `{p}join` to join. Type `{p}start` to start the game.",
-		"**{0}** has started a game of Werewolf. Type `{p}start` to start the game. Type `{p}join` to join."
+		"**{0}** inició un juego de Werewolf. Escribe `{p}join` para unirte. Escribe `{p}start` para iniciar el juego."
 	],
 	"nokills": [
 		"The villagers discover the dead body of a beloved pet penguin, but lucklily no one was harmed.",
