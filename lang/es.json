@@ -18,8 +18,8 @@
 		"There's no room left for you to join this game. There are already {0} players in this lobby."
 	],
 	"minplayers": [
-		"Please wait until there are at least {0} players.",
-		"You cannot start the game until there are at least {0} players."
+		"APlease wait until there are at least {0} players.",
+		"AYou cannot start the game until there are at least {0} players."
 	],
 	"notplayingstart": [
 		"You are not playing, so you cannot start the game! Type `!join` to join the game."
