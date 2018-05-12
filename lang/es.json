@@ -26,14 +26,9 @@
 		"**{0}** inició un juego de Werewolf. Escribe `{p}join` para unirte. Escribe `{p}start` para iniciar el juego."
 	],
 	"nokills": [
-		"The villagers discover the dead body of a beloved pet penguin, but lucklily no one was harmed.",
-		"The villagers discover the dead body of a beloved pet dog, but lucklily no one was harmed.",
-		"The villagers discover the dead body of a beloved pet cat, but lucklily no one was harmed.",
-		"Paw prints and tufts of fur are found circling the village, but everyone seems unharmed.",
-		"Some house doors have been opened.",
-	        "A scent much like that of a wolf permeates the air.",
-	        "Half-buried wolf droppings are found.",
-	        "Traces of wolf fur are found."
+		"Los aldeanos descubren el cuerpo de un perro, pero por suerte nadie fue lastimado.",
+		"Los aldeanos descubren el cuerpo de un gato, pero por suerte nadie fue lastimado.",
+		"Huellas y mechones de pelo rodean la ciudad, pero al parecer todos están ilesos."
 	],
 	"lynched": [
 		"The villagers have agreed to lynch **{0}**, a **{1}**.",
