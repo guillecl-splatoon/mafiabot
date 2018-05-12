@@ -1,17 +1,6 @@
 {
 	"ping": [
-		"ñPong!",
-		"**PONG! {bot_nick}** smashes the ball into **{author}'s** face!",
-		"Ping!",
-		"Pling!",
-		"Dink! The ball knocks over **{bot_nick}**'s glass of lemonade.",
-		"\\*ping\\*. **{bot_nick}** taps the ball, which brushes the net and falls onto **{author}'s** side.",
-		"Pling! The ball hits **{author}'s** chest and they dramatically fall over.",
-		"Pong! The ball is launched at the wall, going nowhere near the table.",
-		"An error has pinged and has been ponged.",
-		"PING! **{author}**",
-		"Don't you mean **{p}ping**?",
-		"{bot_nick}.exe has stopped responding. Windows is checking for a solution to the problem..."
+		"Pong!"
 	],
 	"maxplayers": [
 		"The maximum number of players ({0}) have already joined the game.",
