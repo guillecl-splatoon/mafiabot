@@ -1699,8 +1699,8 @@ async def cmd_gamemode(message, parameters):
     gamemode, num = _autocomplete(parameters, gamemodes)
     if num == 1 and parameters != '':
         await reply(message, "```\nGamemode: {}\nPlayers: {}\nDescription: {}\n\nUse the command "
-                             "`!roles {} table` to view roles for this gamemode.```".format(gamemode,
-        str(gamemodes[gamemode]['min_players']) + '-' + str(gamemodes[gamemode]['max_players']),
+                             "`{}roles {} table` to view roles for this gamemode.```".format(gamemode,
+        str(gamemodes[gamemode]['min_players']) + '-' + str(gamemodes[gamemode]['max_players']), BOT_PREFIX,
         gamemodes[gamemode]['description'], gamemode))
     else:
         await reply(message, "Available gamemodes: {}".format(', '.join(sorted(gamemodes))))
