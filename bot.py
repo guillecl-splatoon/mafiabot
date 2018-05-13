@@ -1700,8 +1700,8 @@ async def cmd_gamemode(message, parameters):
     if num == 1 and parameters != '':
         await reply(message, "```\nGamemode: {}\nPlayers: {}\nDescription: {}\n\nUse the command "
                              "`{}roles {} table` to view roles for this gamemode.```".format(gamemode,
-        str(gamemodes[gamemode]['min_players']) + '-' + str(gamemodes[gamemode]['max_players']), BOT_PREFIX,
-        gamemodes[gamemode]['description'], gamemode))
+        str(gamemodes[gamemode]['min_players']) + '-' + str(gamemodes[gamemode]['max_players']),
+        gamemodes[gamemode]['description'], BOT_PREFIX, gamemode))
     else:
         await reply(message, "Available gamemodes: {}".format(', '.join(sorted(gamemodes))))
 
