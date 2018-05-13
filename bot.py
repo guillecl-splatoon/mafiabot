@@ -2795,6 +2795,10 @@ async def game_loop(ses=None):
             first_night = False
             await log(1, '\n'.join(log_msg))
             session[3][0] = datetime.now()
+            
+            perms = discord.PermissionOverwrite()
+            perms.send_messages = False
+            await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), client.get_server(WEREWOLF_SERVER).roles(PLAYERS_ROLE), perms)
             await send_lobby("It is now **nighttime**.")
             warn = False
             # NIGHT LOOP
@@ -3172,6 +3176,10 @@ async def game_loop(ses=None):
         else: # DAY
             session[3][1] = datetime.now()
             if session[0] and win_condition() == None:
+                
+            perms = discord.PermissionOverwrite()
+            perms.send_messages = True
+            await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), client.get_server(WEREWOLF_SERVER).roles(PLAYERS_ROLE), perms)
                 await send_lobby("It is now **daytime**. Use `{}lynch <player>` to vote to lynch <player>.".format(BOT_PREFIX))
 
             for player in session[1]:
