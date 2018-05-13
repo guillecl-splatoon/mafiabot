@@ -285,6 +285,9 @@ async def cmd_join(message, parameters):
             await client.change_presence(game=client.get_server(WEREWOLF_SERVER).me.game, status=discord.Status.idle)
             await send_lobby(random.choice(lang['gamestart']).format(
                                             message.author.name, p=BOT_PREFIX))
+            overwrite = discord.PermissionOverwrite()
+            overwrite.send_messages = False
+            await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite)
         else:
             await client.send_message(message.channel, "**{}** joined the game and raised the number of players to **{}**.".format(
                                                         message.author.name, len(session[1])))
