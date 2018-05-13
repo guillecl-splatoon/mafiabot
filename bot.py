@@ -3174,10 +3174,11 @@ async def game_loop(ses=None):
                 await check_traitor()
         else: # DAY
             session[3][1] = datetime.now()
+            overwrite = discord.PermissionOverwrite()
+            overwrite.send_messages = True
+            await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite) 
             if session[0] and win_condition() == None:
-                overwrite = discord.PermissionOverwrite()
-                overwrite.send_messages = True
-                await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite)                            
+                                           
                 await send_lobby("It is now **daytime**. Use `{}lynch <player>` to vote to lynch <player>.".format(BOT_PREFIX))
 
             for player in session[1]:
