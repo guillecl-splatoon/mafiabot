@@ -36,28 +36,20 @@
 		"Los aldeanos, luego de discutir, finalmente deciden linchar a **{0}**, que resultó ser... un **{1}**."
 	],
 	"hastotem": [
-		"**{0}** is in possession of a mysterious totem..."
+		"**{0}** está en posesión de un misterioso tótem..."
 	],
 	"hastotem2": [
-		"**{0}** and **{1}** are in possession of a mysterious totem..."
+		"**{0}** y **{1}** están en posesión de un misterioso tótem..."
 	],
 	"hastotems": [
-		"**{0}**, and **{1}** are in possession of a mysterious totem..."
+		"**{0}**, y **{1}** están en posesión de un misterioso tótem..."
 	],
 	"leavedeath": [
-		"**{0}** spontaneously combusted. The air smells of freshly burnt **{1}**.",
-		"While wearing a red triangular hat, **{0}**, a **{1}**, was shot dead by a hunter.",
-		"While wearing a yellow square hat, **{0}**, a **{1}**, was rammed by a tank.",
-		"While wearing a blue pentagonal hat, **{0}**, a **{1}**, was destroyed by a giant cannonball.",
-		"While wearing an oversized blue pentagonal hat, **{0}**, a **{1}**, was annihilated by a humongous mortar shell.",
-		"After jumping into a tank, **{0}** drowned. The fish consumed the dead **{1}**'s body.",
-		"**{0}** mysteriously disappeared in the woods. Nobody knows where the **{1}** went.",
-		"Standing under a tree, **{0}**, a **{1}**, is killed by a falling branch.",
-		"**{0}**, a **{1}**, is killed by lightning before the villagers' eyes. The air smells of burnt flesh.",
-        	"Rampaging through the village, a bull gores **{0}**, a **{1}**.",
-	        "**{0}**, a **{1}**, falls into a vat of molasses and drowns."
+		"**{0}** desapareció misteriosamente en el bosque. Nadie sabe el paradero del **{1}**.",
+		"Mientras descansaba bajo un árbol, **{0}**, un **{1}**, murió por una rama que se cayó.",
+		"Un rayo alcanzó a **{0}**, un **{1}**. Un olor a carne quemada se siente en el aire."
 	],
 	"firstjoin": [
-		"**{0}** has started a game of Werewolf. Type `{p}join` to join. Type `{p}start` to start the game."
+		"**{0}** inició un juego de Werewolf. Escribe `{p}join` para unirte. Escribe `{p}start` para iniciar el juego."
 	]
 }
