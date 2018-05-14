@@ -701,7 +701,7 @@ async def _send_role_info(player, sendrole=True):
                         if session[1][player][2] in totems:
                             totem = session[1][player][2]
                             msg.append("You have the **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
-                    if role in ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'seer',
+                    if role in ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'vidente',
                                 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'crazed shaman']:
                         msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
@@ -832,7 +832,7 @@ async def cmd_revealroles(message, parameters):
     await client.send_message(message.channel, '\n'.join(msg))
     await log(2, "{0} ({1}) REVEALROLES".format(message.author.name, message.author.id))
 
-@cmd('see', [2, 0], "```\n{0}see <player>\n\nIf you are a seer, uses your power to detect <player>'s role.```")
+@cmd('see', [2, 0], "```\n{0}see <player>\n\nIf you are a vidente, uses your power to detect <player>'s role.```")
 async def cmd_see(message, parameters):
     if not session[0] or message.author.id not in session[1] or not session[1][message.author.id][0]:
         return
@@ -856,7 +856,7 @@ async def cmd_see(message, parameters):
                     await reply(message, "Player **" + get_name(player) + "** is dead!")
                 else:
                     session[1][message.author.id][2] = player
-                    if role == 'seer':
+                    if role == 'vidente':
                         seen_role = get_role(player, 'seen')
                         if (session[1][player][4].count('deceit_totem2') +\
                             session[1][message.author.id][4].count('deceit_totem2')) % 2 == 1:
@@ -1299,7 +1299,7 @@ async def cmd_give(message, parameters):
 @cmd('info', [0, 0], "```\n{0}info takes no arguments\n\nGives information on how the game works.```")
 async def cmd_info(message, parameters):
     msg = "In Werewolf, there are two teams, village and wolves. The villagers try to get rid of all of the wolves, and the wolves try to kill all of the villagers.\n"
-    msg += "There are two phases, night and day. During night, the wolf/wolves choose a target to kill, and some special village roles like seer perform their actions. "
+    msg += "There are two phases, night and day. During night, the wolf/wolves choose a target to kill, and some special village roles like vidente perform their actions. "
     msg += "During day, the village discusses everything and chooses someone to lynch. "
     msg += "Once you die, you can't talk in the lobby channel but you can discuss the game with the spectators in #spectator-chat.\n\n"
     msg += "To join a game, use `{0}join`. If you cannot chat in #lobby, then either a game is ongoing or you are dead.\n"
@@ -1817,7 +1817,7 @@ async def cmd_fsay(message, parameters):
         await reply(message, commands['fsay'][2].format(BOT_PREFIX))
     
 @cmd('observe', [2, 0], "```\n{0}observe <player>\n\nIf you are a werecrow, tells you if <player> was in their bed for the night. "
-                        "If you are a sorcerer, tells you if <player> has supernatural powers (seer, etc.).```")
+                        "If you are a sorcerer, tells you if <player> has supernatural powers (vidente, etc.).```")
 async def cmd_observe(message, parameters):
     if not session[0] or message.author.id not in session[1] or get_role(message.author.id, 'role') not in COMMANDS_FOR_ROLE['observe'] or not session[1][message.author.id][0]:
         return
@@ -1849,7 +1849,7 @@ async def cmd_observe(message, parameters):
                             await asyncio.sleep(0.1)
                         if 'observe' in session[1][message.author.id][4]:
                             session[1][message.author.id][4].remove('observe')
-                        if get_role(player, 'role') in ['seer', 'oracle', 'harlot', 'hunter', 'augur']\
+                        if get_role(player, 'role') in ['vidente', 'oracle', 'harlot', 'hunter', 'augur']\
                             and session[1][player][2] in set(session[1]) - set(player)\
                             or get_role(player, 'role') in ['shaman', 'crazed shaman']\
                             and session[1][player][2] in session[1]:
@@ -1880,7 +1880,7 @@ async def cmd_observe(message, parameters):
                 else:
                     session[1][message.author.id][2] = player
                     target_role = get_role(player, 'role')
-                    if target_role in ['seer', 'oracle', 'augur']:
+                    if target_role in ['vidente', 'oracle', 'augur']:
                         debug_msg = target_role
                         msg = "**{}** is a **{}**!".format(get_name(player), get_role(player, 'role'))
                     else:
@@ -2136,7 +2136,7 @@ async def assign_roles(gamemode):
 
     for i in range(gamemode_roles['cursed villager'] if 'cursed villager' in gamemode_roles else 0):
         cursed_choices = [x for x in session[1] if get_role(x, 'role') not in\
-        ACTUAL_WOLVES + ['seer', 'oracle', 'augur', 'fool'] and 'cursed' not in session[1][x][3]]
+        ACTUAL_WOLVES + ['vidente', 'oracle', 'augur', 'fool'] and 'cursed' not in session[1][x][3]]
         if cursed_choices:
             cursed = random.choice(cursed_choices)
             session[1][cursed][3].append('cursed')
@@ -2812,7 +2812,7 @@ async def game_loop(ses=None):
                     role = get_role(player, 'role')
                     if session[1][player][0]:
                         if role in ['wolf', 'werecrow', 'werekitten', 'sorcerer',
-                                    'seer', 'oracle', 'harlot', 'hunter', 'augur']:
+                                    'vidente', 'oracle', 'harlot', 'hunter', 'augur']:
                             end_night = end_night and (session[1][player][2] != '')
                         if role in ['shaman', 'crazed shaman']:
                             end_night = end_night and (session[1][player][2] in session[1])
@@ -3378,7 +3378,7 @@ async def backup_settings_loop():
         await asyncio.sleep(BACKUP_INTERVAL)
 
 ############## POST-DECLARATION STUFF ###############
-COMMANDS_FOR_ROLE = {'see' : ['seer', 'oracle', 'augur'],
+COMMANDS_FOR_ROLE = {'see' : ['vidente', 'oracle', 'augur'],
                      'kill' : ['wolf', 'werecrow', 'werekitten', 'hunter'],
                      'give' : ['shaman'],
                      'visit' : ['harlot'],
@@ -3402,9 +3402,9 @@ roles = {'wolf' : ['wolf', 'wolves', "Your job is to kill all of the villagers. 
          'traitor' : ['wolf', 'traitors', "You are exactly like a villager, but you are part of the wolf team. Only the detective can reveal your true "
                                           "identity. Once all other wolves die, you will turn into a wolf."],
          'sorcerer' : ['wolf', 'sorcerers', "You may use `observe <player>` in pm during the night to observe someone and determine if they "
-                                            "are the seer, oracle, or augur. You are seen as a villager; only detectives can reveal your true identity."],
+                                            "are the vidente, oracle, or augur. You are seen as a villager; only detectives can reveal your true identity."],
          'cultist' : ['wolf', 'cultists', "Your job is to help the wolves kill all of the villagers."],
-         'seer' : ['village', 'seers', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see their role."],
+         'vidente' : ['village', 'videntes', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see their role."],
          'oracle' : ['village', 'oracles', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see whether or not they are a wolf."],
          'shaman' : ['village', 'shamans', "You select a player to receive a totem each night by using `give <player>`. You may give a totem to yourself, but you may not give the same"
                                            " person a totem two nights in a row. If you do not give the totem to anyone, it will be given to a random player. "
@@ -3421,7 +3421,7 @@ roles = {'wolf' : ['wolf', 'wolves', "Your job is to kill all of the villagers. 
                                                          "but you may not give the same person a totem two nights in a row. If you do not give the totem to anyone, "
                                                          "it will be given to a random player. You win if you are alive by the end of the game."],
          'fool' : ['neutral', 'fools', "You become the sole winner if you are lynched during the day. You cannot win otherwise."],
-         'cursed villager' : ['template', 'cursed villagers', "This template is hidden and is seen as a wolf by the seer. Roles normally seen as wolf, the seer, and the fool cannot be cursed."],
+         'cursed villager' : ['template', 'cursed villagers', "This template is hidden and is seen as a wolf by the vidente. Roles normally seen as wolf, the seer, and the fool cannot be cursed."],
          'gunner' : ['template', 'gunners', "This template gives the player a gun. Type `{0}shoot <player>` in channel during the day to shoot <player>. "
                                             "If you are a villager and shoot a wolf, they will die. Otherwise, there is a chance of killing them, injuring "
                                             "them, or the gun exploding. If you are a wolf and shoot at a wolf, you will intentionally miss."],
@@ -3451,7 +3451,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             'cultist' :
             [0, 0, 0, 1, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'shaman' :
             [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
@@ -3494,7 +3494,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             'cultist' :
             [0, 0, 0, 1, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'shaman' :
             [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
@@ -3570,7 +3570,7 @@ gamemodes = {
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [3, 4, 4, 4, 3, 4,  3, 2, 3, 1, 2, 1, 1],
@@ -3599,7 +3599,7 @@ gamemodes = {
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'harlot' :
             [3, 4, 4, 4, 3, 4,  3, 2, 3, 1, 2, 1, 1],
@@ -3626,7 +3626,7 @@ gamemodes = {
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 2, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3685,7 +3685,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'oracle' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3732,7 +3732,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'seer' :
+            'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'oracle' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3762,7 +3762,7 @@ gamemodes = {
 }
 gamemodes['belunga']['roles'] = dict(gamemodes['default']['roles'])
 
-VILLAGE_ROLES_ORDERED = ['seer', 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
+VILLAGE_ROLES_ORDERED = ['vidente', 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
 WOLF_ROLES_ORDERED = ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'cultist']
 NEUTRAL_ROLES_ORDERED = ['crazed shaman', 'fool']
 TEMPLATES_ORDERED = ['cursed villager', 'gunner']
@@ -3776,8 +3776,8 @@ totems = {'death_totem' : 'The player who is given this totem will die tonight.'
           'lycanthropy_totem' : 'If the player who is given this totem is targeted by wolves the following night, they turn into a wolf instead of dying.',
           'retribution_totem' : 'If the player who is given this totem is targeted by wolves during the night, they kill a random wolf in turn.',
           'blinding_totem' : 'The player who is given this totem will be injured and unable to vote the following day.',
-          'deceit_totem' : 'If the player who is given this totem is seen by the seer/oracle the following night, the '
-                           'vision will return the opposite of what they are. If a seer/oracle is given this totem, '
+          'deceit_totem' : 'If the player who is given this totem is seen by the vidente/oracle the following night, the '
+                           'vision will return the opposite of what they are. If a vidente/oracle is given this totem, '
                            'all of their visions will return the opposite.'}
 SHAMAN_TOTEMS = ['death_totem', 'protection_totem', 'revealing_totem', 'influence_totem', 'impatience_totem', 'pacifism_totem']
 ROLES_SEEN_VILLAGER = ['werekitten', 'traitor', 'sorcerer', 'cultist', 'villager', 'fool']
