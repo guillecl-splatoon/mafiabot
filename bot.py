@@ -680,12 +680,12 @@ async def _send_role_info(player, sendrole=True):
                     msg = []
                     living_players = sort_players(x for x in session[1] if session[1][x][0])
                     living_players_string = ['{} ({})'.format(get_name(x), x) for x in living_players]
-                    if role in COMMANDS_FOR_ROLE['kill'] and roles[role][0] == 'wolf':
+                    if role in COMMANDS_FOR_ROLE['kill'] and roles[role][0] == 'lobo':
                         if 'angry' in session[1][player][4]:
                             num_kills = session[1][player][4].count('angry')
                             msg.append("Esta noche estás **enojado**, y puedes matar {} personajes usando `kill {}`.\n".format(
                                 num_kills + 1, ' AND '.join('player' + str(x + 1) for x in range(num_kills + 1))))
-                    if roles[role][0] == 'wolf' and role not in ['cultist']:
+                    if roles[role][0] == 'lobo' and role not in ['cultist']:
                         living_players_string = []
                         for plr in living_players:
                             temprole = get_role(plr, 'role')
@@ -693,7 +693,7 @@ async def _send_role_info(player, sendrole=True):
                             role_string = []
                             if 'cursed' in temptemplates:
                                 role_string.append('cursed')
-                            if roles[temprole][0] == 'wolf' and temprole != 'cultist':
+                            if roles[temprole][0] == 'lobo' and temprole != 'cultist':
                                 role_string.append(temprole)
                             living_players_string.append("{} ({}){}".format(get_name(plr), plr,
                             ' ({})'.format(' '.join(role_string)) if role_string else ''))
@@ -701,7 +701,7 @@ async def _send_role_info(player, sendrole=True):
                         if session[1][player][2] in totems:
                             totem = session[1][player][2]
                             msg.append("You have the **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
-                    if role in ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'vidente',
+                    if role in ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'vidente',
                                 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'crazed shaman']:
                         msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
@@ -767,8 +767,8 @@ async def cmd_stats(message, parameters):
                 del role_dict[role]
 
         if traitor_turned:
-            role_dict['wolf'][0] += role_dict['traitor'][0]
-            role_dict['wolf'][1] += role_dict['traitor'][1]
+            role_dict['lobo'][0] += role_dict['traitor'][0]
+            role_dict['lobo'][1] += role_dict['traitor'][1]
             role_dict['traitor'] = [0, 0]
 
         for player in session[1]:
@@ -779,7 +779,7 @@ async def cmd_stats(message, parameters):
 
                 if role == 'traitor' and traitor_turned:
                     # player died as traitor but traitor turn message played, so subtract from wolves
-                    reveal = 'wolf'
+                    reveal = 'lobo'
 
                 if reveal == 'villager':
                     traitorvill -= 1
@@ -860,25 +860,25 @@ async def cmd_see(message, parameters):
                         seen_role = get_role(player, 'seen')
                         if (session[1][player][4].count('deceit_totem2') +\
                             session[1][message.author.id][4].count('deceit_totem2')) % 2 == 1:
-                            if seen_role == 'wolf':
+                            if seen_role == 'lobo':
                                 seen_role = 'villager'
                             else:
-                                seen_role = 'wolf'
+                                seen_role = 'lobo'
                         reply_msg = "is a **{}**".format(seen_role)
                     elif role == 'oracle':
                         seen_role = get_role(player, 'seenoracle')
                         if (session[1][player][4].count('deceit_totem2') +\
                             session[1][message.author.id][4].count('deceit_totem2')) % 2 == 1:
                             # getting team will return either village or wolf team
-                            if seen_role == 'wolf':
+                            if seen_role == 'lobo':
                                 seen_role = 'villager'
                             else:
-                                seen_role = 'wolf'
-                        reply_msg = "is {}a **wolf**".format('**not** ' if seen_role == 'villager' else '')
+                                seen_role = 'lobo'
+                        reply_msg = "{} es un **lobo**".format('**no** ' if seen_role == 'villager' else '')
                     elif role == 'augur':
                         seen_role = get_role(player, 'actualteam')
                         reply_msg = "exudes a **{}** aura".format(
-                            'red' if seen_role == 'wolf' else 'blue' if seen_role == 'village' else 'grey')
+                            'red' if seen_role == 'lobo' else 'blue' if seen_role == 'village' else 'grey')
                     await reply(message, "Tienes una visión... en tu visión ves que **{}** {}!".format(
                         get_name(player), reply_msg))
                     await log(1, "{0} ({1}) SEE {2} ({3}) AS {4}".format(get_name(message.author.id), message.author.id, get_name(player), player, seen_role))
@@ -969,7 +969,7 @@ async def cmd_kill(message, parameters):
                     await log(1, "{0} ({1}) HUNTERKILL {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
             else:        
                 await reply(message, "No se pudo encontrar al jugador " + parameters)
-        elif roles[get_role(message.author.id, 'role')][0] == 'wolf':
+        elif roles[get_role(message.author.id, 'role')][0] == 'lobo':
             num_kills = session[1][message.author.id][4].count('angry') + 1
             targets = parameters.split(' and ')
             actual_targets = []
@@ -988,8 +988,8 @@ async def cmd_kill(message, parameters):
                 if player == message.author.id:
                     await reply(message, "El suicido es malo para ti.")
                     return
-                elif get_role(message.author.id, 'actualteam') == 'wolf' and \
-                get_role(player, 'actualteam') == 'wolf' and get_role(player, 'role') != 'cultist':
+                elif get_role(message.author.id, 'actualteam') == 'lobo' and \
+                get_role(player, 'actualteam') == 'lobo' and get_role(player, 'role') != 'cultist':
                     await reply(message, "No puedes matar a otro lobo.")
                     return
                 elif not session[1][player][0]:
@@ -1835,7 +1835,7 @@ async def cmd_observe(message, parameters):
                 if player:
                     if player == message.author.id:
                         await reply(message, "Eso sería un desperdicio.")
-                    elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
+                    elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'lobo' and get_role(x, 'role') != 'cultist']:
                         await reply(message, "Observar a otro lobo sería una pérdida de tiempo.")
                     elif not session[1][player][0]:
                         await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
@@ -1873,7 +1873,7 @@ async def cmd_observe(message, parameters):
             if player:
                 if player == message.author.id:
                     await reply(message, "Usar tu poder en ti mismo sería un desperdicio.")
-                elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
+                elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'lobo' and get_role(x, 'role') != 'cultist']:
                     await reply(message, "Observar a otro lobo sería una pérdida de tiempo.")
                 elif not session[1][player][0]:
                     await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
@@ -2213,7 +2213,7 @@ def win_condition():
     for player in session[1]:
         if session[1][player][0]:
             if 'injured' in session[1][player][4]:
-                if get_role(player, 'actualteam') == 'wolf' and session[1][player][1] != 'cultist':
+                if get_role(player, 'actualteam') == 'lobo' and session[1][player][1] != 'cultist':
                     injured_wolves += 1
             else:
                 if session[1][player][1] == 'cultist':
@@ -2394,30 +2394,30 @@ def get_role(player, level):
         role = session[1][player][1]
         templates = session[1][player][3]
         if level == 'team':
-            if roles[role][0] == 'wolf':
+            if roles[role][0] == 'lobo':
                 if not role in ROLES_SEEN_VILLAGER:
-                    return "wolf"
+                    return "lobo"
             return "village"
         elif level == 'actualteam':
             return roles[role][0]
         elif level == 'seen':
             seen_role = None
             if role in ROLES_SEEN_WOLF:
-                seen_role = 'wolf'
+                seen_role = 'lobo'
             elif session[1][player][1] in ROLES_SEEN_VILLAGER:
                 seen_role = 'villager'
             else:
                 seen_role = role
             for template in templates:
                 if template in ROLES_SEEN_WOLF:
-                    seen_role = 'wolf'
+                    seen_role = 'lobo'
                     break
                 if template in ROLES_SEEN_VILLAGER:
                     seen_role = 'villager'
             return seen_role
         elif level == 'seenoracle':
             seen_role = get_role(player, 'seen')
-            if seen_role != 'wolf':
+            if seen_role != 'lobo':
                 seen_role = 'villager'
             return seen_role
         elif level == 'death':
@@ -2669,7 +2669,7 @@ async def check_traitor():
             await log(1, ', '.join(cubs) + " creció y ahora es un lobo")
             for cub in cubs:
                 session[1][cub][4].append('wolf_cub')
-                session[1][cub][1] = 'wolf'
+                session[1][cub][1] = 'lobo'
                 member = client.get_server(WEREWOLF_SERVER).get_member(cub)
                 if member:
                     try:
@@ -2681,7 +2681,7 @@ async def check_traitor():
         await log(1, ', '.join(traitors) + " se transformó en un lobo")
         for traitor in traitors:
             session[1][traitor][4].append('traitor')
-            session[1][traitor][1] = 'wolf'
+            session[1][traitor][1] = 'lobo'
             member = client.get_server(WEREWOLF_SERVER).get_member(traitor)
             if member:
                 try:
@@ -2811,14 +2811,14 @@ async def game_loop(ses=None):
                 for player in session[1]:
                     role = get_role(player, 'role')
                     if session[1][player][0]:
-                        if role in ['wolf', 'werecrow', 'werekitten', 'sorcerer',
+                        if role in ['lobo', 'werecrow', 'werekitten', 'sorcerer',
                                     'vidente', 'oracle', 'harlot', 'hunter', 'augur']:
                             end_night = end_night and (session[1][player][2] != '')
                         if role in ['shaman', 'crazed shaman']:
                             end_night = end_night and (session[1][player][2] in session[1])
                         if role in ['matchmaker']:
                             end_night = end_night and 'match' not in session[1][player][4]
-                        if roles[role][0] == 'wolf' and role in COMMANDS_FOR_ROLE['kill']:
+                        if roles[role][0] == 'lobo' and role in COMMANDS_FOR_ROLE['kill']:
                             num_wolves += 1
                             num_kills = session[1][player][4].count('angry') + 1
                             t = session[1][player][2]
@@ -2943,7 +2943,7 @@ async def game_loop(ses=None):
             wolf_turn = []
             
             for player in alive_players:
-                if roles[get_role(player, 'role')][0] == 'wolf' and get_role(player, 'role') in COMMANDS_FOR_ROLE['kill']:
+                if roles[get_role(player, 'role')][0] == 'lobo' and get_role(player, 'role') in COMMANDS_FOR_ROLE['kill']:
                     for t in session[1][player][2].split(','):
                         if t in wolf_votes:
                             wolf_votes[t] += 1
@@ -3013,7 +3013,7 @@ async def game_loop(ses=None):
                     if session[1][player][4].count('lycanthropy_totem2') > 0:
                         killed_dict[player] = 0
                         wolf_turn.append(player)
-                        await wolfchat("{} is now a **wolf**!".format(get_name(player)))
+                        await wolfchat("{} ahora es un **lobo**!".format(get_name(player)))
                         try:
                             member = client.get_server(WEREWOLF_SERVER).get_member(player)
                             if member:
@@ -3023,9 +3023,9 @@ async def game_loop(ses=None):
                             pass
                     elif session[1][player][4].count('retribution_totem') > 0:
                         revenge_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
-                            'wolf', 'werecrow', 'werekitten']]
+                            'lobo', 'werecrow', 'werekitten']]
                         if get_role(player, 'role') == 'harlot' and get_role(session[1][player][2], 'role') in [
-                            'wolf', 'werecrow', 'wolf cub', 'werekitten']:
+                            'lobo', 'werecrow', 'wolf cub', 'werekitten']:
                             revenge_targets[:] = [session[1][player][2]]
                         else:
                             revenge_targets[:] = [x for x in revenge_targets if player in session[1][x][2].split(',')]
@@ -3055,9 +3055,9 @@ async def game_loop(ses=None):
                 session[1][player][4].count('bullet') > 0 and killed_dict[player] > 0:
                     if random.random() < GUNNER_REVENGE_WOLF:
                         revenge_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
-                            'wolf', 'werecrow', 'werekitten']]
+                            'lobo', 'werecrow', 'werekitten']]
                         if get_role(player, 'role') == 'harlot' and get_role(session[1][player][2], 'role') in [
-                            'wolf', 'werecrow', 'wolf cub', 'werekitten']:
+                            'lobo', 'werecrow', 'wolf cub', 'werekitten']:
                             revenge_targets[:] = [session[1][player][2]]
                         else:
                             revenge_targets[:] = [x for x in revenge_targets if session[1][x][2] in wolf_killed]
@@ -3168,7 +3168,7 @@ async def game_loop(ses=None):
                     await player_death(player, 'night kill')
 
             for player in wolf_turn:
-                session[1][player][1] = 'wolf'
+                session[1][player][1] = 'lobo'
             
             for player in session[1]:
                 session[1][player][2] = ''
@@ -3378,7 +3378,7 @@ async def backup_settings_loop():
 
 ############## POST-DECLARATION STUFF ###############
 COMMANDS_FOR_ROLE = {'see' : ['vidente', 'oracle', 'augur'],
-                     'kill' : ['wolf', 'werecrow', 'werekitten', 'hunter'],
+                     'kill' : ['lobo', 'werecrow', 'werekitten', 'hunter'],
                      'give' : ['shaman'],
                      'visit' : ['harlot'],
                      'shoot' : ['gunner'],
@@ -3390,7 +3390,7 @@ GAMEPLAY_COMMANDS = ['join', 'j', 'start', 'vote', 'lynch', 'v', 'abstain', 'abs
 GAMEPLAY_COMMANDS += list(COMMANDS_FOR_ROLE)
 
 # {role name : [team, plural, description]}
-roles = {'wolf' : ['wolf', 'wolves', "Your job is to kill all of the villagers. Type `kill <player>` in private message to kill them."],
+roles = {'lobo' : ['wolf', 'lobos', "Your job is to kill all of the villagers. Type `kill <player>` in private message to kill them."],
          'werecrow' : ['wolf', 'werecrows', "You are part of the wolfteam. Use `observe <player>` during the night to see if they were in bed or not. "
                                             "You may also use `kill <player>` to kill them."],
          'wolf cub' : ['wolf', 'wolf cubs', "You are part of the wolfteam. While you cannot kill anyone, the other wolves will "
@@ -3436,7 +3436,7 @@ gamemodes = {
         'max_players' : 20,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
             'werecrow' :
             [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -3479,7 +3479,7 @@ gamemodes = {
         'max_players' : 20,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
             'werecrow' :
             [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -3522,7 +3522,7 @@ gamemodes = {
         'max_players' : 20,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [0, 0, 0, 0, 1, 1,  2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3],
             'werecrow' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3563,7 +3563,7 @@ gamemodes = {
         'max_players' : 16,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
-            'wolf' :
+            'lobo' :
             [1, 1, 1, 1, 1, 1,  2, 2, 2, 3, 3, 3, 3],
             'traitor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
@@ -3592,7 +3592,7 @@ gamemodes = {
         'max_players' : 16,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
-            'wolf' :
+            'lobo' :
             [1, 1, 1, 1, 1, 1,  2, 2, 2, 3, 3, 3, 3],
             'traitor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
@@ -3619,7 +3619,7 @@ gamemodes = {
         'max_players' : 16,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
-            'wolf' :
+            'lobo' :
             [1, 1, 1, 1, 1, 1,  1, 1, 2, 2, 1, 1, 2],
             'traitor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 2, 2, 2],
@@ -3655,7 +3655,7 @@ gamemodes = {
         'max_players' : 20,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [0, 0, 0, 0, 2, 2,  2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
             'matchmaker' :
             [0, 0, 0, 0, 6, 7,  8, 9, 9, 9,10,11,12,12,12,13,14],
@@ -3670,7 +3670,7 @@ gamemodes = {
         'max_players' : 20,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'werecrow' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3717,7 +3717,7 @@ gamemodes = {
         'max_players' : 0,
         'roles' : {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
+            'lobo' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'werecrow' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3762,7 +3762,7 @@ gamemodes = {
 gamemodes['belunga']['roles'] = dict(gamemodes['default']['roles'])
 
 VILLAGE_ROLES_ORDERED = ['vidente', 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
-WOLF_ROLES_ORDERED = ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'cultist']
+WOLF_ROLES_ORDERED = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'cultist']
 NEUTRAL_ROLES_ORDERED = ['crazed shaman', 'fool']
 TEMPLATES_ORDERED = ['cursed villager', 'gunner']
 totems = {'death_totem' : 'The player who is given this totem will die tonight.',
@@ -3780,9 +3780,9 @@ totems = {'death_totem' : 'The player who is given this totem will die tonight.'
                            'all of their visions will return the opposite.'}
 SHAMAN_TOTEMS = ['death_totem', 'protection_totem', 'revealing_totem', 'influence_totem', 'impatience_totem', 'pacifism_totem']
 ROLES_SEEN_VILLAGER = ['werekitten', 'traitor', 'sorcerer', 'cultist', 'villager', 'fool']
-ROLES_SEEN_WOLF = ['wolf', 'werecrow', 'wolf cub', 'cursed']
-ACTUAL_WOLVES = ['wolf', 'werecrow', 'wolf cub', 'werekitten']
-WOLFCHAT_ROLES = ['wolf', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer']
+ROLES_SEEN_WOLF = ['lobo', 'werecrow', 'wolf cub', 'cursed']
+ACTUAL_WOLVES = ['lobo', 'werecrow', 'wolf cub', 'werekitten']
+WOLFCHAT_ROLES = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer']
 
 ########### END POST-DECLARATION STUFF #############
 client.loop.create_task(do_rate_limit_loop())
