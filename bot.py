@@ -267,8 +267,8 @@ async def cmd_join(message, parameters):
     if session[0]:
         return
     if message.author.id in stasis and stasis[message.author.id] > 0:
-        await reply(message, "You are in stasis for **{}** game{}. Please do not break rules, idle out or use !leave during a game.".format(
-                                stasis[message.author.id], '' if stasis[message.author.id] == 1 else 's'))
+        await reply(message, "Estás bloqueado por **{}** juego{}. Por favor no rompas las reglas, no te quedes inactivo o uses {p}leave durante un juego.".format(
+                                stasis[message.author.id], '' if stasis[message.author.id] == 1 else 's', p=BOX_PREFIX))
         return
     if len(session[1]) >= MAX_PLAYERS:
         await reply(message, random.choice(lang['maxplayers']).format(MAX_PLAYERS))
@@ -289,7 +289,7 @@ async def cmd_join(message, parameters):
             overwrite.send_messages = True
             await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite)
         else:
-            await client.send_message(message.channel, "**{}** joined the game and raised the number of players to **{}**.".format(
+            await client.send_message(message.channel, "**{}** se unió al juego y aumentó el número de jugadores a **{}**.".format(
                                                         message.author.name, len(session[1])))
         if parameters:
             await cmd_vote(message, parameters)
@@ -302,9 +302,9 @@ async def cmd_join(message, parameters):
 async def cmd_leave(message, parameters):
     if session[0] and message.author.id in session[1] and session[1][message.author.id][0]:
         if parameters != '-force':
-            msg = await client.send_message(message.channel, "Are you sure you want to quit during game? Doing "
-                                                             "so will result in {} games of stasis. You may bypass "
-                                                             "this confirmation by using `{}leave -force`.".format(
+            msg = await client.send_message(message.channel, "Estás seguro que quieres abandonar durante un juego?"
+                                                             "Hacerlo resultará en {} juegos bloqueado. Puedes saltarte "
+                                                             "esta confirmación usando `{}leave -force`.".format(
                                                                  QUIT_GAME_STASIS, BOT_PREFIX))
             def check(m):
                 c = m.content.lower()
@@ -412,11 +412,11 @@ async def cmd_fleave(message, parameters):
     for member in sort_players(leave_list):
         if member in list(session[1]):
             if session[0]:
-                leave_msg += "**" + get_name(member) + "** was forcibly shoved into a fire. The air smells of freshly burnt **" + get_role(member, 'death') + "**.\n"
+                leave_msg += "**" + get_name(member) + "**, el ** "  + get_role(member, 'death') + " fue forzado a abandonar el juego.\n"
             else:
-                leave_msg += "**" + get_name(member) + "** was forced to leave the game.\n"
+                leave_msg += "**" + get_name(member) + "** fue forzado a abandonar el juego.\n"
     if not session[0]:
-        leave_msg += "New player count: **{}**".format(len(session[1]))
+        leave_msg += "Nuevo número de jugadores: **{}**".format(len(session[1]))
         if len(session[1]) == 0:
             await client.change_presence(game=client.get_server(WEREWOLF_SERVER).me.game, status=discord.Status.online)
     await send_lobby(leave_msg)
@@ -457,14 +457,14 @@ async def cmd_start(message, parameters):
     if session[1][message.author.id][1]:
         return
     if datetime.now() < wait_timer:
-        await reply(message, "Please wait at least {} more second{}.".format(
+        await reply(message, "Por favor espera al menos {} segundo{} más.".format(
             int((wait_timer - datetime.now()).total_seconds()), '' if int((wait_timer - datetime.now()).total_seconds()) == 1 else 's'))
         return
     session[1][message.author.id][1] = 'start'
     votes = len([x for x in session[1] if session[1][x][1] == 'start'])
     votes_needed = max(2, min(len(session[1]) // 4 + 1, 4))
     if votes < votes_needed:
-        await send_lobby("**{}** has voted to start the game. **{}** more vote{} needed.".format(
+        await send_lobby("**{}** votó por comenzar el juego. Se necesitan **{}** voto{} más.".format(
             message.author.display_name, votes_needed - votes, '' if (votes_needed - votes == 1) else 's'))
     else:
         await run_game()
@@ -478,14 +478,14 @@ async def cmd_fstart(message, parameters):
     if len(session[1]) < MIN_PLAYERS:
         await reply(message, random.choice(lang['minplayers']).format(MIN_PLAYERS))
     else:
-        await send_lobby("**" + message.author.name + "** forced the game to start.")
+        await send_lobby("**" + get_name(message.author.name) + "** forzó el juego a comenzar.")
         await log(2, "{0} ({1}) FSTART".format(message.author.name, message.author.id))
         await run_game()
 
 @cmd('fstop', [1, 1], "```\n{0}fstop [<-force|reason>]\n\nForcibly stops the current game with an optional [<reason>]. Use {0}fstop -force if "
                       "bot errors.```")
 async def cmd_fstop(message, parameters):
-    msg = "Game forcibly stopped by **" + message.author.name + "**"
+    msg = "El juego fue detenido forzosamente por **" + get_name(message.author.name) + "**"
     if parameters == "":
         msg += "."
     elif parameters == "-force":
@@ -508,7 +508,7 @@ async def cmd_fstop(message, parameters):
         msg += " for reason: `" + parameters + "`."
 
     if not session[0]:
-        await reply(message, "There is no currently running game!")
+        await reply(message, "No hay juego en curso!")
         return
     else:
         await log(2, "{0} ({1}) FSTOP {2}".format(message.author.name, message.author.id, parameters))
@@ -676,14 +676,14 @@ async def _send_role_info(player, sendrole=True):
             if member and session[1][player][0]:
                 try:
                     if sendrole:
-                        await client.send_message(member, "Your role is **" + role + "**. " + roles[role][2] + '\n')
+                        await client.send_message(member, "Tu rol es **" + role + "**. " + roles[role][2] + '\n')
                     msg = []
                     living_players = sort_players(x for x in session[1] if session[1][x][0])
                     living_players_string = ['{} ({})'.format(get_name(x), x) for x in living_players]
                     if role in COMMANDS_FOR_ROLE['kill'] and roles[role][0] == 'wolf':
                         if 'angry' in session[1][player][4]:
                             num_kills = session[1][player][4].count('angry')
-                            msg.append("You are **angry** tonight, and may kill {} targets by using `kill {}`.\n".format(
+                            msg.append("Esta noche estás **enojado**, y puedes matar {} personajes usando `kill {}`.\n".format(
                                 num_kills + 1, ' AND '.join('player' + str(x + 1) for x in range(num_kills + 1))))
                     if roles[role][0] == 'wolf' and role not in ['cultist']:
                         living_players_string = []
@@ -705,16 +705,16 @@ async def _send_role_info(player, sendrole=True):
                                 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'crazed shaman']:
                         msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
-                        msg.append("You have a gun and **{}** bullet{}. Use the command "
-                                   "`{}role gunner` for more information.".format(
+                        msg.append("Tiens una pistola y **{}** bala{}. Usa el comando "
+                                   "`{}role gunner` para más información.".format(
                             session[1][player][4].count('bullet'), '' if session[1][player][4].count('bullet') == 1 else 's',
                             BOT_PREFIX))
                     if role == 'matchmaker' and sendrole:
-                        msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
+                        msg.append("Jugadores vivos: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if msg:
                         await client.send_message(member, '\n'.join(msg))
                 except discord.Forbidden:
-                    await send_lobby(member.mention + ", you cannot play the game if you block me")
+                    await send_lobby(member.mention + ", no puedes jugar si me tienes bloqueado.")
 
 @cmd('myrole', [0, 0], "```\n{0}myrole takes no arguments\n\nTells you your role in pm.```")
 async def cmd_myrole(message, parameters):
@@ -724,7 +724,7 @@ async def cmd_myrole(message, parameters):
 async def cmd_stats(message, parameters):
     #TODO: rewrite
     if session[0]:
-        reply_msg = "It is now **" + ("day" if session[2] else "night") + "time**. Using the **{}** gamemode.".format(
+        reply_msg = "Ahora es de **" + ("día" if session[2] else "noche") + ". Usando el modo de juego **{}**.".format(
             'roles' if session[6].startswith('roles') else session[6])
         reply_msg += "\n**" + str(len(session[1])) + "** players playing: **" + str(len([x for x in session[1] if session[1][x][0]])) + "** alive, "
         reply_msg += "**" + str(len([x for x in session[1] if not session[1][x][0]])) + "** dead\n"
@@ -817,9 +817,9 @@ async def cmd_stats(message, parameters):
         players = ["{} ({})".format(get_name(x), x) for x in sort_players(session[1])]
         num_players = len(session[1])
         if num_players == 0:
-            await client.send_message(message.channel, "There is currently no active game. Try {}join to start a new game!".format(BOT_PREFIX))
+            await client.send_message(message.channel, "No hay un juego activo. Escribe {}join para iniciar un juego nuevo!".format(BOT_PREFIX))
         else:
-            await client.send_message(message.channel, "{} players in lobby: ```\n{}\n```".format(num_players, '\n'.join(players)))
+            await client.send_message(message.channel, "{} jugadores en la sala: ```\n{}\n```".format(num_players, '\n'.join(players)))
 
 @cmd('revealroles', [1, 1], "```\n{0}revealroles takes no arguments\n\nDisplays what each user's roles are and sends it in pm.```", 'rr')
 async def cmd_revealroles(message, parameters):
@@ -832,7 +832,7 @@ async def cmd_revealroles(message, parameters):
     await client.send_message(message.channel, '\n'.join(msg))
     await log(2, "{0} ({1}) REVEALROLES".format(message.author.name, message.author.id))
 
-@cmd('see', [2, 0], "```\n{0}see <player>\n\nIf you are a vidente, uses your power to detect <player>'s role.```")
+@cmd('see', [2, 0], "```\n{0}see <player>\n\nSi tu eres un(a) vidente, usa tu poder para detectar el rol de <player>.```")
 async def cmd_see(message, parameters):
     if not session[0] or message.author.id not in session[1] or not session[1][message.author.id][0]:
         return
@@ -840,10 +840,10 @@ async def cmd_see(message, parameters):
     if role not in COMMANDS_FOR_ROLE['see']:
         return
     if session[2]:
-        await reply(message, "You may only see during the night.")
+        await reply(message, "Sólo puedes ver durante la noche.")
         return
     if session[1][message.author.id][2]:
-        await reply(message, "You have already used your power.")
+        await reply(message, "Ya has usado tu poder.")
     else:
         if parameters == "":
             await reply(message, roles[role][2])
@@ -851,9 +851,9 @@ async def cmd_see(message, parameters):
             player = get_player(parameters)
             if player:
                 if player == message.author.id:
-                    await reply(message, "Using your power on yourself would be a waste.")
+                    await reply(message, "Usar tu poder en ti mismo sería un desperdicio.")
                 elif not session[1][player][0]:
-                    await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                 else:
                     session[1][message.author.id][2] = player
                     if role == 'vidente':
@@ -879,11 +879,11 @@ async def cmd_see(message, parameters):
                         seen_role = get_role(player, 'actualteam')
                         reply_msg = "exudes a **{}** aura".format(
                             'red' if seen_role == 'wolf' else 'blue' if seen_role == 'village' else 'grey')
-                    await reply(message, "You have a vision... in your vision you see that **{}** {}!".format(
+                    await reply(message, "Tienes una visión... en tu visión ves que **{}** {}!".format(
                         get_name(player), reply_msg))
                     await log(1, "{0} ({1}) SEE {2} ({3}) AS {4}".format(get_name(message.author.id), message.author.id, get_name(player), player, seen_role))
             else:
-                await reply(message, "Could not find player " + parameters)
+                await reply(message, "No se pudo encontrar al jugador " + parameters)
 
 @cmd('choose', [2, 0], "```\n{0}choose <player1> and <player2>\n\nIf you are a matchmaker, Selects two players to fall in love. You may select yourself as one of the lovers.```", 'match')
 async def cmd_choose(message, parameters):
@@ -894,7 +894,7 @@ async def cmd_choose(message, parameters):
     else:
         if get_role(message.author.id, 'role') == 'matchmaker':
             if 'match' not in session[1][message.author.id][4]:
-                await reply(message, "You have already chosen lovers.")
+                await reply(message, "Ya seleccionaste amantes.")
                 return
             targets = parameters.split(' and ')
             if len(targets) == 2:
@@ -902,22 +902,22 @@ async def cmd_choose(message, parameters):
                 for target in targets:
                     player = get_player(target)
                     if not player:
-                        await reply(message, "Could not find player " + target)
+                        await reply(message, "No se pudo encontrar al jugador " + target)
                         return
                     actual_targets.append(player)
                 actual_targets = set(actual_targets)
                 valid_targets = []
                 if len(actual_targets) != 2:
-                    await reply(message, "You may only choose **2** unique players to match.")
+                    await reply(message, "Puedes seleccionar sólo **2** jugadores para unir como amantes.")
                     return
                 for player in actual_targets:
                     if not session[1][player][0]:
-                        await reply(message, "Player **" + get_name(player) + "** is dead!")
+                        await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                         return
                     else:
                         valid_targets.append(player)
                 valid_targets = sort_players(valid_targets)
-                await reply(message, "You have selected **{}** and **{}** to be lovers.".format(*map(get_name, valid_targets)))
+                await reply(message, "Has seleccionado a **{}** y **{}** como amantes.".format(*map(get_name, valid_targets)))
                 session[1][message.author.id][4].remove('match')
                 player1 = valid_targets[0]
                 player2 = valid_targets[1]
@@ -927,7 +927,7 @@ async def cmd_choose(message, parameters):
                     session[1][player2][4].append("lover:" + player1)
                 await log(1, "{} ({}) CHOOSE {} ({}) AND {} ({})".format(get_name(message.author.id), message.author.id,
                     get_name(player1), player1, get_name(player2), player2))
-                love_msg = "You are in love with **{}**. If that player dies for any reason, the pain will be too much for you to bear and you will commit suicide."
+                love_msg = "Estás enamorado de **{}**. Si este jugador muere por alguna razón, el dolor será mucho para ti y cometerás suicidio."
                 try:
                     await client.send_message(client.get_server(WEREWOLF_SERVER).get_member(player1), love_msg.format(get_name(player2)))
                 except:
@@ -937,38 +937,38 @@ async def cmd_choose(message, parameters):
                 except:
                     pass
             else:
-                await reply(message, "You must choose two different players.")
+                await reply(message, "Debes elegir dos jugadores diferentes.")
 
-@cmd('kill', [2, 0], "```\n{0}kill <player>\n\nIf you are a wolf, casts your vote to target <player>. If you are a "
-                     "hunter, <player> will die the following night.```")
+@cmd('kill', [2, 0], "```\n{0}kill <player>\n\nSi eres un lobo, emite tu voto para elegir a <player> como objetivo. Si eres un "
+                     "hunter, <player> morirá la noche siguiente.```")
 async def cmd_kill(message, parameters):
     if not session[0] or message.author.id not in session[1] or get_role(message.author.id, 'role') not in COMMANDS_FOR_ROLE['kill'] or not session[1][message.author.id][0]:
         return
     if session[2]:
-        await reply(message, "You may only kill someone during the night.")
+        await reply(message, "Sólo puedes matar a alguien durante la noche.")
         return
     if parameters == "":
         await reply(message, roles[session[1][message.author.id][1]][2])
     else:
         if get_role(message.author.id, 'role') == 'hunter':
             if 'hunterbullet' not in session[1][message.author.id][4]:
-                await reply(message, "You have already killed someone this game.")
+                await reply(message, "Ya mataste a alguien en este juego.")
                 return
             elif session[1][message.author.id][2] not in ['', message.author.id]:
-                await reply(message, "You have already chosen to kill **{}**.".format(get_name(session[1][message.author.id][2])))
+                await reply(message, "Elegiste matar a **{}**.".format(get_name(session[1][message.author.id][2])))
                 return
             player = get_player(parameters)
             if player:
                 if player == message.author.id:
-                    await reply(message, "Suicide is bad for you.")
+                    await reply(message, "El suicido es malo para ti.")
                 elif not session[1][player][0]:
                     await reply(message, "Player **" + get_name(player) + "** is dead!")
                 else:
                     session[1][message.author.id][2] = player
-                    await reply(message, "You have chosen to kill **" + get_name(player) + "** tonight.")
+                    await reply(message, "Elegiste matar a **" + get_name(player) + "** esta noche.")
                     await log(1, "{0} ({1}) HUNTERKILL {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
             else:        
-                await reply(message, "Could not find player " + parameters)
+                await reply(message, "No se pudo encontrar al jugador " + parameters)
         elif roles[get_role(message.author.id, 'role')][0] == 'wolf':
             num_kills = session[1][message.author.id][4].count('angry') + 1
             targets = parameters.split(' and ')
@@ -976,35 +976,35 @@ async def cmd_kill(message, parameters):
             for target in targets:
                 player = get_player(target)
                 if not player:
-                    await reply(message, "Could not find player " + target)
+                    await reply(message, "No se pudo encontrar al jugador " + target)
                     return
                 actual_targets.append(player)
             actual_targets = set(actual_targets)
             valid_targets = []
             if len(actual_targets) > num_kills:
-                await reply(message, "You may only kill **{}** targets.".format(num_kills))
+                await reply(message, "Sólo puedes matar a **{}** objetivos.".format(num_kills))
                 return
             for player in actual_targets:
                 if player == message.author.id:
-                    await reply(message, "Suicide is bad for you.")
+                    await reply(message, "El suicido es malo para ti.")
                     return
                 elif get_role(message.author.id, 'actualteam') == 'wolf' and \
                 get_role(player, 'actualteam') == 'wolf' and get_role(player, 'role') != 'cultist':
-                    await reply(message, "You can't kill another wolf.")
+                    await reply(message, "No puedes matar a otro lobo.")
                     return
                 elif not session[1][player][0]:
-                    await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                     return
                 else:
                     valid_targets.append(player)
             valid_targets = sort_players(valid_targets)
             session[1][message.author.id][2] = ','.join(valid_targets)
-            await reply(message, "You have voted to kill **{}**.".format('** and **'.join(
+            await reply(message, "Votaste para matar a **{}**.".format('** y **'.join(
                 map(get_name, valid_targets))))
-            await wolfchat("**{}** has voted to kill **{}**.".format(get_name(message.author.id), '** and **'.join(
+            await wolfchat("**{}** votó para matar a **{}**.".format(get_name(message.author.id), '** y **'.join(
                 map(get_name, valid_targets))))
             await log(1, "{0} ({1}) KILL {2} ({3})".format(get_name(message.author.id), message.author.id,
-            ' and '.join(map(get_name, valid_targets)), ','.join(valid_targets)))
+            ' y '.join(map(get_name, valid_targets)), ','.join(valid_targets)))
 
 @cmd('vote', [0, 0], "```\n{0}vote [<gamemode | player>]\n\nVotes for <gamemode> during the join phase or votes to lynch <player> during the day. If no arguments "
                      "are given, replies with a list of current votes.```", 'v')
@@ -1013,7 +1013,7 @@ async def cmd_vote(message, parameters):
         await cmd_lynch(message, parameters)
     else:
         if message.channel.is_private:
-            await reply(message, "Please use vote in channel.")
+            await reply(message, "Por favor vota en el canal.")
             return
         if parameters == "":
             await cmd_votes(message, parameters)
@@ -1024,16 +1024,16 @@ async def cmd_vote(message, parameters):
             if message.author.id in session[1]:
                 choice, num = _autocomplete(parameters, gamemodes)
                 if num == 0:
-                    await reply(message, "Could not find gamemode {}".format(parameters))
+                    await reply(message, "No se pudo encontrar el modo de juego {}".format(parameters))
                 elif num == 1:
                     session[1][message.author.id][2] = choice
-                    await reply(message, "You have voted for the **{}** gamemode.".format(choice))
+                    await reply(message, "Votaste por el modo de juego **{}**.".format(choice))
                 else:
                     await reply(message, "Multiple options: {}".format(', '.join(sorted(choice))))
             else:
-                await reply(message, "You cannot vote for a gamemode if you are not playing!")
+                await reply(message, "No puedes votar por un modo de juego si no estás jugando!")
         
-@cmd('lynch', [0, 0], "```\n{0}lynch [<player>]\n\nVotes to lynch [<player>] during the day. If no arguments are given, replies with a list of current votes.```")
+@cmd('lynch', [0, 0], "```\n{0}lynch [<player>]\n\nVota para linchar a [<player>] durante el día. Si no se reciben argumentos, devuelve una lista de los votos actuales.```")
 async def cmd_lynch(message, parameters):
     if not session[0] or not session[2]:
         return
@@ -1043,23 +1043,23 @@ async def cmd_lynch(message, parameters):
         if message.author.id not in session[1]:
             return
         if message.channel.is_private:
-            await reply(message, "Please use lynch in channel.")
+            await reply(message, "Por favor usa lynch en el canal.")
             return
         if 'injured' in session[1][message.author.id][4]:
-            await reply(message, "You are injured and unable to vote.")
+            await reply(message, "Estás herido e incapacitado para votar.")
             return
         to_lynch = get_player(parameters.split(' ')[0])
         if not to_lynch:
             to_lynch = get_player(parameters)
         if to_lynch:
             if not session[1][to_lynch][0]:
-                await reply(message, "Player **" + get_name(to_lynch) + "** is dead!")
+                await reply(message, "El jugador **" + get_name(to_lynch) + "** está muerto!")
             else:
                 session[1][message.author.id][2] = to_lynch
-                await reply(message, "You have voted to lynch **" + get_name(to_lynch) + "**.")
+                await reply(message, "Votaste para linchar a **" + get_name(to_lynch) + "**.")
                 await log(1, "{0} ({1}) LYNCH {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(to_lynch), to_lynch))
         else:
-            await reply(message, "Could not find player " + parameters)
+            await reply(message, "No se pudo encontrar al jugador " + parameters)
 
 @cmd('votes', [0, 0], "```\n{0}votes takes no arguments\n\nDisplays votes for gamemodes during the join phase or current votes to lynch during the day.```")
 async def cmd_votes(message, parameters):
@@ -1072,8 +1072,8 @@ async def cmd_votes(message, parameters):
                 vote_dict[session[1][player][2]] = [player]
             if session[1][player][1] == 'start':
                 vote_dict['start'].append(player)
-        reply_msg = "**{}** player{} in the lobby, **{}** vote{} required to choose a gamemode, **{}** votes needed to start.```\n".format(
-            len(session[1]), '' if len(session[1]) == 1 else 's', len(session[1]) // 2 + 1, '' if len(session[1]) // 2 + 1 == 1 else 's',
+        reply_msg = "**{}** jugador{} in the lobby, Se necesitan **{}** voto{} para elegir un modo de juego. Se necesitan **{}** votos para iniciar el juego.```\n".format(
+            len(session[1]), '' if len(session[1]) == 1 else 'es', len(session[1]) // 2 + 1, '' if len(session[1]) // 2 + 1 == 1 else 's',
             max(2, min(len(session[1]) // 4 + 1, 4)))
         for gamemode in vote_dict:
             if gamemode == 'start':
@@ -1093,17 +1093,17 @@ async def cmd_votes(message, parameters):
             elif session[1][player][2] != '':
                 vote_dict[session[1][player][2]] = [player]
         abstainers = vote_dict['abstain']
-        reply_msg = "**{}** living players, **{}** votes required to lynch, **{}** players available to vote, **{}** player{} refrained from voting.\n".format(
-            len(alive_players), len(able_voters) // 2 + 1, len(able_voters), len(abstainers), '' if len(abstainers) == 1 else 's')
+        reply_msg = "**{}** jugadores vivos, **{}** votos requeridos para linchar, **{}** jugadores habilitados para votar, **{}** jugador{} incapacitado para votar.\n".format(
+            len(alive_players), len(able_voters) // 2 + 1, len(able_voters), len(abstainers), '' if len(abstainers) == 1 else 'es')
 
         if len(vote_dict) == 1 and vote_dict['abstain'] == []:
-            reply_msg += "No one has cast a vote yet. Do `{}lynch <player>` in #{} to lynch <player>. ".format(BOT_PREFIX, client.get_channel(GAME_CHANNEL).name)
+            reply_msg += "Nadie ha votado aún. Escribe `{}lynch <player>` en #{} para linchar a <player>. ".format(BOT_PREFIX, client.get_channel(GAME_CHANNEL).name)
         else:
-            reply_msg += "Current votes: ```\n"
+            reply_msg += "Votos actuales: ```\n"
             for voted in [x for x in vote_dict if x != 'abstain']:
                 reply_msg += "{} ({}) ({} vote{}): {}\n".format(
                     get_name(voted), voted, len(vote_dict[voted]), '' if len(vote_dict[voted]) == 1 else 's', ', '.join(['{} ({})'.format(get_name(x), x) for x in vote_dict[voted]]))
-            reply_msg += "{} vote{} to abstain: {}\n".format(
+            reply_msg += "{} voto{} por abstención: {}\n".format(
                 len(vote_dict['abstain']), '' if len(vote_dict['abstain']) == 1 else 's', ', '.join(['{} ({})'.format(get_name(x), x) for x in vote_dict['abstain']]))            
             reply_msg += "```"
         await reply(message, reply_msg)
@@ -1122,30 +1122,30 @@ async def cmd_retract(message, parameters):
         return
     if not session[0]:
         if message.channel.is_private:
-            await reply(message, "Please use retract in channel.")
+            await reply(message, "Por favor usa retract en el canal.")
             return
         session[1][message.author.id][2] = ''
         session[1][message.author.id][1] = ''
-        await reply(message, "You retracted your vote.")
+        await reply(message, "Retractaste tu voto.")
     elif session[0] and session[1][message.author.id][0]:
         if session[2]:
             if message.channel.is_private:
-                await reply(message, "Please use retract in channel.")
+                await reply(message, "Por favor usa retract en el canal..")
                 return
             session[1][message.author.id][2] = ''
-            await reply(message, "You retracted your vote.")
+            await reply(message, "Retractaste tu voto.")
             await log(1, "{0} ({1}) RETRACT VOTE".format(get_name(message.author.id), message.author.id))
         else:
             if session[1][message.author.id][1] in COMMANDS_FOR_ROLE['kill']:
                 if not message.channel.is_private:
                     try:
-                        await client.send_message(message.author, "Please use retract in pm.")
+                        await client.send_message(message.author, "Por favor usa retract en mensaje privado.")
                     except:
                         pass
                     return
                 session[1][message.author.id][2] = ''
-                await reply(message, "You retracted your kill.")
-                await wolfchat("**{}** has retracted their kill.".format(get_name(message.author.id)))
+                await reply(message, "Retractaste tu asesinato.")
+                await wolfchat("**{}** retractó su asesinato.".format(get_name(message.author.id)))
                 await log(1, "{0} ({1}) RETRACT KILL".format(get_name(message.author.id), message.author.id))
 
 @cmd('abstain', [0, 2], "```\n{0}abstain takes no arguments\n\nRefrain from voting someone today.```", 'abs', 'nl')
@@ -1153,14 +1153,14 @@ async def cmd_abstain(message, parameters):
     if not session[0] or not session[2] or not message.author.id in session[1] or not session[1][message.author.id][0]:
         return
     if session[4][1] == timedelta(0):
-        await send_lobby("The village may not abstain on the first day.")
+        await send_lobby("La aldea no puede abstenerse de votar en el primer día.")
         return
     if 'injured' in session[1][message.author.id][4]:
-        await reply(message, "You are injured and unable to vote.")
+        await reply(message, "Estás herido e incapacitado para votar.")
         return
     session[1][message.author.id][2] = 'abstain'
     await log(1, "{0} ({1}) ABSTAIN".format(get_name(message.author.id), message.author.id))
-    await send_lobby("**{}** votes to not lynch anyone today.".format(get_name(message.author.id)))
+    await send_lobby("**{}** votó por no linchar a nadie hoy.".format(get_name(message.author.id)))
 
 @cmd('coin', [0, 0], "```\n{0}coin takes no arguments\n\nFlips a coin. Don't use this for decision-making, especially not for life or death situations.```")
 async def cmd_coin(message, parameters):
@@ -1308,14 +1308,14 @@ async def cmd_info(message, parameters):
     msg += "Please let belungawhale know about any bugs you might find."
     await reply(message, msg.format(BOT_PREFIX))
 
-@cmd('notify_role', [0, 0], "```\n{0}notify_role [<true|false>]\n\nGives or take the " + WEREWOLF_NOTIFY_ROLE_NAME + " role.```")
+@cmd('notify_role', [0, 0], "```\n{0}notify_role [<true|false>]\n\nEntrega o quita el rol " + WEREWOLF_NOTIFY_ROLE_NAME + ".```")
 async def cmd_notify_role(message, parameters):
     if not WEREWOLF_NOTIFY_ROLE:
         await reply(message, "Error: A " + WEREWOLF_NOTIFY_ROLE_NAME + " role does not exist. Please let an admin know.")
         return
     member = client.get_server(WEREWOLF_SERVER).get_member(message.author.id)
     if not member:
-        await reply(message, "You are not in the server!")
+        await reply(message, "No estás en el servidor!")
     has_role = WEREWOLF_NOTIFY_ROLE in member.roles
     if parameters == '':
         has_role = not has_role
@@ -1328,10 +1328,10 @@ async def cmd_notify_role(message, parameters):
         return
     if has_role:
         await client.add_roles(member, WEREWOLF_NOTIFY_ROLE)
-        await reply(message, "You will be notified by @" + WEREWOLF_NOTIFY_ROLE.name + ".")
+        await reply(message, "Serás notificado por @" + WEREWOLF_NOTIFY_ROLE.name + ".")
     else:
         await client.remove_roles(member, WEREWOLF_NOTIFY_ROLE)
-        await reply(message, "You will not be notified by @" + WEREWOLF_NOTIFY_ROLE.name + ".")
+        await reply(message, "No serás notificado por @" + WEREWOLF_NOTIFY_ROLE.name + ".")
 
 @cmd('ignore', [1, 1], "```\n{0}ignore <add|remove|list> <user>\n\nAdds or removes <user> from the ignore list, or outputs the ignore list.```")
 async def cmd_ignore(message, parameters):
@@ -1386,18 +1386,18 @@ async def cmd_pingif(message, parameters):
     global pingif_dict
     if parameters == '':
         if message.author.id in pingif_dict:
-            await reply(message, "You will be notified when there are at least **{}** players.".format(pingif_dict[message.author.id]))
+            await reply(message, "Serás notificado cuando hayan al menos **{}** jugadores.".format(pingif_dict[message.author.id]))
         else:
-            await reply(message, "You have not set a pingif yet. `{}pingif <number of players>`".format(BOT_PREFIX))
+            await reply(message, "No has configurado un pingif todavía. Usa `{}pingif <number of players>`".format(BOT_PREFIX))
     elif parameters.isdigit():
         num = int(parameters)
         if num in range(MIN_PLAYERS, MAX_PLAYERS + 1):
             pingif_dict[message.author.id] = num
-            await reply(message, "You will be notified when there are at least **{}** players.".format(pingif_dict[message.author.id]))
+            await reply(message, "Serás notificado cuando hayan al menos **{}** jugadores.".format(pingif_dict[message.author.id]))
         else:
-            await reply(message, "Please enter a number between {} and {} players.".format(MIN_PLAYERS, MAX_PLAYERS))
+            await reply(message, "Por favor ingresa un número entre {} y {}.".format(MIN_PLAYERS, MAX_PLAYERS))
     else:
-        await reply(message, "Please enter a valid number of players to be notified at.")
+        await reply(message, "Por favor ingresa un número mínimo válido de jugadores para ser notificado.")
 
 @cmd('online', [1, 1], "```\n{0}online takes no arguments\n\nNotifies all online users.```")
 async def cmd_online(message, parameters):
@@ -1460,22 +1460,22 @@ async def cmd_visit(message, parameters):
             player = get_player(parameters)
             if player:
                 if player == message.author.id:
-                    await reply(message, "You have chosen to stay home tonight.")
+                    await reply(message, "Elegiste quedarte en casa esta noche.")
                     session[1][message.author.id][2] = message.author.id
                     await log(1, "{0} ({1}) STAY HOME".format(get_name(message.author.id), message.author.id))
                 elif not session[1][player][0]:
-                    await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                 else:
-                    await reply(message, "You are spending the night with **{}**. Have a good time!".format(get_name(player)))
+                    await reply(message, "Vas a pasar la noche con **{}**. Pásala bien!".format(get_name(player)))
                     session[1][message.author.id][2] = player
                     member = client.get_server(WEREWOLF_SERVER).get_member(player)
                     try:
-                        await client.send_message(member, "You are spending the night with **{}**. Have a good time!".format(get_name(message.author.id)))
+                        await client.send_message(member, "Vas a pasar la noche con **{}**. Pásala bien!".format(get_name(message.author.id)))
                     except:
                         pass
                     await log(1, "{0} ({1}) VISIT {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
             else:        
-                await reply(message, "Could not find player " + parameters)
+                await reply(message, "Np se pudo encontrar al jugador " + parameters)
 
 @cmd('totem', [0, 0], "```\n{0}totem [<totem>]\n\nReturns information on a totem, or displays a list of totems.```", 'totems')
 async def cmd_totem(message, parameters):
@@ -1723,13 +1723,13 @@ async def cmd_shoot(message, parameters):
         return
     if 'gunner' not in get_role(message.author.id, 'templates'):
         try:
-            await client.send_message(message.author, "You don't have a gun.")
+            await client.send_message(message.author, "No tienes una pistola.")
         except discord.Forbidden:
             pass
         return
     if not session[2]:
         try:
-            await client.send_message(message.author, "You may only shoot players during the day.")
+            await client.send_message(message.author, "Sólo puedes dispararle a jugadores durante el día.")
         except:
             pass
         return
@@ -1737,7 +1737,7 @@ async def cmd_shoot(message, parameters):
     pm = False
     ded = None
     if session[1][message.author.id][4].count('bullet') < 1:
-        msg = "You have no more bullets."
+        msg = "No tienes más balas."
         pm = True
     else:
         if parameters == "":
@@ -1748,11 +1748,11 @@ async def cmd_shoot(message, parameters):
             if not target:
                 target = get_player(parameters)
             if not target:
-                msg = 'Could not find player {}'.format(parameters)
+                msg = 'No se pudo encontrar al jugador {}'.format(parameters)
             elif target == message.author.id:
-                msg = "You are holding it the wrong way."
+                msg = "La estás sujetando mal."
             elif not session[1][target][0]:
-                msg = "Player **{}** is dead!".format(get_name(target))
+                msg = "El jugador **{}** está muerto!".format(get_name(target))
             else:
                 wolf = get_role(message.author.id, 'role') in WOLFCHAT_ROLES
                 session[1][message.author.id][4].remove('bullet')
@@ -1770,23 +1770,23 @@ async def cmd_shoot(message, parameters):
                     outcome = random.choice(['miss'] * GUNNER_MISS + ['suicide'] * GUNNER_SUICIDE \
                                              + ['killvictim'] * GUNNER_HEADSHOT + ['injure'] * GUNNER_INJURE)
                 if outcome in ['injure', 'killvictim', 'killwolf']:
-                    msg = "**{}** shoots **{}** with a bullet!\n\n".format(get_name(message.author.id), get_name(target))
+                    msg = "**{}** le disparó a **{}** con una pistola!\n\n".format(get_name(message.author.id), get_name(target))
                 if outcome == 'miss':
-                    msg += "**{}** is a lousy shooter and missed!".format(get_name(message.author.id))
+                    msg += "**{}** falló su disparo!".format(get_name(message.author.id))
                 elif outcome == 'killwolf':
-                    msg += "**{}** is a **{}** and is dying from the silver bullet!".format(get_name(target),
+                    msg += "**{}** es un **{}** y murió por el disparo!".format(get_name(target),
                             get_role(target, 'death'))
                     ded = target
                 elif outcome == 'suicide':
-                    msg += "Oh no! **{}**'s gun was poorly maintained and has exploded! ".format(get_name(message.author.id))
-                    msg += "The village mourns a **gunner-{}**.".format(get_role(message.author.id, 'death'))
+                    msg += "Oh no! La pistola de **{}** no estaba bien mantenida y explotó! ".format(get_name(message.author.id))
+                    msg += "El pueblo llora un **gunner-{}**.".format(get_role(message.author.id, 'death'))
                     ded = message.author.id
                 elif outcome == 'killvictim':
-                    msg += "**{}** is not a wolf but was fatally injured. The village has sacrificed a **{}**.".format(
+                    msg += "**{}** no es un lobo pero fue herido gravemente. La aldea sacrifica un **{}**.".format(
                             get_name(target), get_role(target, 'death'))
                     ded = target
                 elif outcome == 'injure':
-                    msg += "**{}** is a villager and was injured. Luckily the injury is minor and will heal after a day of rest.".format(
+                    msg += "**{}** es un aldeano y fue herido. Por suerte, la herida es menor y sanará en un día.".format(
                             get_name(target))
                     session[1][target][4].append('injured')
                 else:
@@ -1822,11 +1822,11 @@ async def cmd_observe(message, parameters):
     if not session[0] or message.author.id not in session[1] or get_role(message.author.id, 'role') not in COMMANDS_FOR_ROLE['observe'] or not session[1][message.author.id][0]:
         return
     if session[2]:
-        await reply(message, "You may only observe during the night.")
+        await reply(message, "Sólo puedes observar durante la noche.")
         return
     if get_role(message.author.id, 'role') == 'werecrow':
         if 'observe' in session[1][message.author.id][4]:
-            await reply(message, "You are already observing someone!.")
+            await reply(message, "Ya estás observando a alguien!.")
         else:
             if parameters == "":
                 await reply(message, roles[session[1][message.author.id][1]][2])
@@ -1834,16 +1834,16 @@ async def cmd_observe(message, parameters):
                 player = get_player(parameters)
                 if player:
                     if player == message.author.id:
-                        await reply(message, "That would be a waste.")
+                        await reply(message, "Eso sería un desperdicio.")
                     elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
-                        await reply(message, "Observing another wolf is a waste of time.")
+                        await reply(message, "Observar a otro lobo sería una pérdida de tiempo.")
                     elif not session[1][player][0]:
-                        await reply(message, "Player **" + get_name(player) + "** is dead!")
+                        await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                     else:
                         session[1][message.author.id][4].append('observe')
-                        await reply(message, "You transform into a large crow and start your flight to **{0}'s** house. You will "
-                                            "return after collecting your observations when day begins.".format(get_name(player)))
-                        await wolfchat("**{}** is observing **{}**.".format(get_name(message.author.id), get_name(player)))
+                        await reply(message, "Te transformas en un cuerpo y vuelas hasta la casa de **{0}**. Volverás luego "
+                                            "de recopilar tus observaciones, cuando el día comience.".format(get_name(player)))
+                        await wolfchat("**{}** está observando a **{}**.".format(get_name(message.author.id), get_name(player)))
                         await log(1, "{0} ({1}) OBSERVE {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
                         while not session[2] and win_condition() == None and session[0]:
                             await asyncio.sleep(0.1)
@@ -1853,54 +1853,54 @@ async def cmd_observe(message, parameters):
                             and session[1][player][2] in set(session[1]) - set(player)\
                             or get_role(player, 'role') in ['shaman', 'crazed shaman']\
                             and session[1][player][2] in session[1]:
-                                msg = "not in bed all night"
+                                msg = "no estuvo en su cama en toda la noche"
                         else:
-                                msg = "sleeping all night long"
+                                msg = "durmió toda la noche"
                         try:
-                            await client.send_message(message.author, "As the sun rises, you conclude that **{}** was {}, and you fly back to your house.".format(
+                            await client.send_message(message.author, "Cuando amanece, concluyes que **{}** {}, y vuelas de regreso a tu casa.".format(
                                 get_name(player), msg))
                         except discord.Forbidden:
                             pass
                 else:        
-                    await reply(message, "Could not find player " + parameters)
+                    await reply(message, "No se encontró al jugador " + parameters)
     elif get_role(message.author.id, 'role') == 'sorcerer':
         if session[1][message.author.id][2]:
-            await reply(message, "You have already used your power.")
+            await reply(message, "Ya usaste tu poder.")
         elif parameters == "":
             await reply(message, roles[session[1][message.author.id][1]][2])
         else:
             player = get_player(parameters)
             if player:
                 if player == message.author.id:
-                    await reply(message, "Using your power on yourself would be a waste.")
+                    await reply(message, "Usar tu poder en ti mismo sería un desperdicio.")
                 elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
-                    await reply(message, "Observing another wolf is a waste of time.")
+                    await reply(message, "Observar a otro lobo sería una pérdida de tiempo.")
                 elif not session[1][player][0]:
-                    await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                 else:
                     session[1][message.author.id][2] = player
                     target_role = get_role(player, 'role')
                     if target_role in ['vidente', 'oracle', 'augur']:
                         debug_msg = target_role
-                        msg = "**{}** is a **{}**!".format(get_name(player), get_role(player, 'role'))
+                        msg = "**{}** es un **{}**!".format(get_name(player), get_role(player, 'role'))
                     else:
                         debug_msg = "not paranormal"
-                        msg = "**{}** does not have paranormal senses.".format(get_name(player))
-                    await wolfchat("**{}** is observing **{}**.".format(get_name(message.author.id), get_name(player)))
-                    await reply(message, "After casting your ritual, you determine that " + msg)
+                        msg = "**{}** no tiene poderes paranormales.".format(get_name(player))
+                    await wolfchat("**{}** está observando a **{}**.".format(get_name(message.author.id), get_name(player)))
+                    await reply(message, "Después de invocar tu ritual, determinás que " + msg)
                     await log(1, "{0} ({1}) OBSERVE {2} ({3}) AS {4}".format(get_name(message.author.id), message.author.id, get_name(player), player, debug_msg))
             else:
-                await reply(message, "Could not find player " + parameters)
+                await reply(message, "No se pudo encontrar al jugador " + parameters)
 
 @cmd('id', [2, 0], "```\n{0}id <player>\n\nIf you are a detective, investigates <player> during the day.```")
 async def cmd_id(message, parameters):
     if not session[0] or message.author.id not in session[1] or get_role(message.author.id, 'role') not in COMMANDS_FOR_ROLE['id'] or not session[1][message.author.id][0]:
         return
     if not session[2]:
-        await reply(message, "You may only investigate during the day.")
+        await reply(message, "Sólo puedes investigar durante el día.")
         return
     if 'investigate' in session[1][message.author.id][4]:
-        await reply(message, "You have already investigated someone.")
+        await reply(message, "Ya has investigado a alguien.")
     else:
         if parameters == "":
             await reply(message, roles[session[1][message.author.id][1]][2])
@@ -1908,16 +1908,16 @@ async def cmd_id(message, parameters):
             player = get_player(parameters)
             if player:
                 if player == message.author.id:
-                    await reply(message, "Investigating yourself would be a waste.")
+                    await reply(message, "Investigarte a ti mismo sería un desperdicio.")
                 elif not session[1][player][0]:
-                    await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    await reply(message, "El jugador **" + get_name(player) + "** está muerto!")
                 else:
                     session[1][message.author.id][4].append('investigate')
-                    await reply(message, "The results of your investigation have returned. **{}** is a **{}**!".format(
+                    await reply(message, "Los resultados de tu investigación están listos. **{}** es un **{}**!".format(
                         get_name(player), get_role(player, 'role')))
                     await log(1, "{0} ({1}) INVESTIGATE {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
                     if random.random() < DETECTIVE_REVEAL_CHANCE:
-                        await wolfchat("Someone accidentally drops a paper. The paper reveals that **{}** ({}) is the detective!".format(
+                        await wolfchat("Alguien perdió un papel por accidente. El papel revela que **{}** ({}) es el detective!".format(
                             get_name(message.author.id), message.author.id))
                         await log(1, "{0} ({1}) DETECTIVE REVEAL".format(get_name(message.author.id), message.author.id))
                     while session[2] and win_condition() == None and session[0]:
@@ -1925,7 +1925,7 @@ async def cmd_id(message, parameters):
                     if 'investigate' in session[1][message.author.id][4]:
                         session[1][message.author.id][4].remove('investigate')
             else:        
-                await reply(message, "Could not find player " + parameters)
+                await reply(message, "No se pudo encontrar al jugador " + parameters)
         
 @cmd('frevive', [1, 2], "```\n{0}frevive <player>\n\nRevives <player>. Used for debugging purposes.```")
 async def cmd_frevive(message, parameters):
@@ -1951,16 +1951,16 @@ async def cmd_pass(message, parameters):
     if not session[0] or message.author.id not in session[1] or role not in COMMANDS_FOR_ROLE['pass'] or not session[1][message.author.id][0]:
         return
     if session[2] and role in ('harlot', 'hunter'):
-        await reply(message, "You may only pass during the night.")
+        await reply(message, "Solo puedes pasar durante la noche.")
         return
     if session[1][message.author.id][2] != '':
         return
     if role == 'harlot':
         session[1][message.author.id][2] = message.author.id
-        await reply(message, "You have chosen to stay home tonight.")
+        await reply(message, "Elegiste quedarte en casa durante la noche.")
     elif role == 'hunter':
         session[1][message.author.id][2] = message.author.id
-        await reply(message, "You have chosen to not kill anyone tonight.")
+        await reply(message, "Elegiste no matar a nadie esta noche.")
     else:
         await reply(message, "wtf? (this is an error; please report to an admin")
     await log(1, "{0} ({1}) PASS".format(get_name(message.author.id), message.author.id))
@@ -2166,7 +2166,7 @@ async def end_game(reason, winners=None):
     else:
         if session[3][0]:
             session[4][0] += datetime.now() - session[3][0]
-    msg = "<@{}> Game over! Night lasted **{:02d}:{:02d}**. Day lasted **{:02d}:{:02d}**. Game lasted **{:02d}:{:02d}**. \
+    msg = "<@{}> Game over! La noche duró **{:02d}:{:02d}**. El día duró **{:02d}:{:02d}**. El juego duró **{:02d}:{:02d}**. \
           \n{}\n\n".format('> <@'.join(sort_players(session[1])), session[4][0].seconds // 60, session[4][0].seconds % 60,
           session[4][1].seconds // 60, session[4][1].seconds % 60, (session[4][0].seconds + session[4][1].seconds) // 60,
           (session[4][0].seconds + session[4][1].seconds) % 60, reason)
@@ -2177,13 +2177,13 @@ async def end_game(reason, winners=None):
                 winners.append(player)
         winners = sort_players(set(winners)) # set ensures winners are unique
         if len(winners) == 0:
-            msg += "No one wins!"
+            msg += "Nadie gana!"
         elif len(winners) == 1:
-            msg += "The winner is **{}**!".format(get_name(winners[0]))
+            msg += "El ganador es **{}**!".format(get_name(winners[0]))
         elif len(winners) == 2:
-            msg += "The winners are **{}** and **{}**!".format(get_name(winners[0]), get_name(winners[1]))
+            msg += "Los ganadores son **{}** y **{}**!".format(get_name(winners[0]), get_name(winners[1]))
         else:
-            msg += "The winners are **{}**, and **{}**!".format('**, **'.join(map(get_name, winners[:-1])), get_name(winners[-1]))
+            msg += "Los ganadores son **{}**, y **{}**!".format('**, **'.join(map(get_name, winners[:-1])), get_name(winners[-1]))
     await send_lobby(msg)
     await log(1, "WINNERS: {}".format(winners))
 
@@ -2236,18 +2236,18 @@ def win_condition():
                     if lvr not in lovers and session[1][lvr][0]:
                         lovers.append(lvr)
     if len([x for x in session[1] if session[1][x][0]]) == 0:
-        win_lore = 'Everyone died. The town sits abandoned, collecting dust.'
+        win_lore = 'Todos murieron. La aldea está abandonada, acumulando polvo.'
         win_team = 'no win'
     elif len(lovers) == len([x for x in session[1] if session[1][x][0]]):
         win_team = 'lovers'
-        win_lore = "Game over! The remaining villagers through their inseparable love for each other have agreed to stop all of this senseless violence and coexist in peace forever more. All remaining players win."
+        win_lore = "Los aldeanos restantes acuerdan parar toda esta violencia sin sentido por el amor que se tienen. Todos los jugadores restantes ganan."
     elif teams['village'] + teams['neutral'] <= teams['wolf']:
         win_team = 'wolf'
-        win_lore = 'The number of uninjured villagers is equal or less than the number of living wolves! The wolves overpower the remaining villagers and devour them whole.'
+        win_lore = 'El número de aldeanos no heridos es igual o menor que el número de lobos! Los lobos dominan a los aldeanos restantes y se los comen.'
     elif len([x for x in session[1] if session[1][x][0] and get_role(x, 'role') in ACTUAL_WOLVES + ['traitor']]) == 0:
         # old version: teams['wolf'] == 0 and injured_wolves == 0:
         win_team = 'village'
-        win_lore = 'All the wolves are dead! The surviving villagers gather the bodies of the dead wolves, roast them, and have a BBQ in celebration.'
+        win_lore = 'Todos los lobos murieron! Los aldeanos restantes juntan los cadáveres de los lobos muertos y los queman.'
     else:
         return None
     
@@ -2287,11 +2287,11 @@ def end_game_stats():
         if len(value) == 0:
             pass
         elif len(value) == 1:
-            role_msg += "The **{}** was **{}**. ".format(key, get_name(value[0]))
+            role_msg += "El **{}** era **{}**. ".format(key, get_name(value[0]))
         elif len(value) == 2:
-            role_msg += "The **{}** were **{}** and **{}**. ".format(roles[key][1], get_name(value[0]), get_name(value[1]))
+            role_msg += "Los **{}** eran **{}** y **{}**. ".format(roles[key][1], get_name(value[0]), get_name(value[1]))
         else:
-            role_msg += "The **{}** were **{}**, and **{}**. ".format(roles[key][1], '**, **'.join(map(get_name, value[:-1])), get_name(value[-1]))
+            role_msg += "Los **{}** eran **{}**, y **{}**. ".format(roles[key][1], '**, **'.join(map(get_name, value[:-1])), get_name(value[-1]))
 
     lovers = []
 
@@ -2323,11 +2323,11 @@ def end_game_stats():
         pass
     elif len(lovers) == 1:
         # *map(get_name, lovers[0]) just applies get_name to each lover then unpacks the result into format
-        role_msg += "The **lovers** were **{}/{}**. ".format(*map(get_name, lovers[0]))
+        role_msg += "Los **lovers** eran **{}/{}**. ".format(*map(get_name, lovers[0]))
     elif len(lovers) == 2:
-        role_msg += "The **lovers** were **{}/{}** and **{}/{}**. ".format(*map(get_name, lovers[0] + lovers[1]))
+        role_msg += "Los **lovers** eran **{}/{}** y **{}/{}**. ".format(*map(get_name, lovers[0] + lovers[1]))
     else:
-        role_msg += "The **lovers** were {}, and **{}/{}**. ".format(
+        role_msg += "Los **lovers** eran {}, and **{}/{}**. ".format(
             ', '.join('**{}/{}**'.format(*map(get_name, x)) for x in lovers[:-1]), *map(get_name, lovers[-1]))
     return role_msg
 
@@ -2581,7 +2581,7 @@ async def wolfchat(message, author=''):
         try:
             pfx = "**[Wolfchat]**"
             if athr != '':
-                pfx += " message from **{}**".format(athr)
+                pfx += " Mensaje de **{}**".format(athr)
             await client.send_message(client.get_server(WEREWOLF_SERVER).get_member(wolf), "{}: {}".format(pfx, msg))
         except discord.Forbidden:
             pass
@@ -2598,15 +2598,15 @@ async def player_idle(message):
             return False
         msg = await client.wait_for_message(author=message.author, channel=client.get_channel(GAME_CHANNEL), timeout=PLAYER_TIMEOUT, check=check)
         if msg == None and message.author.id in session[1] and session[0] and session[1][message.author.id][0]:
-            await send_lobby(message.author.mention + "**, you have been idling for a while. Please say something soon or you might be declared dead.**")
+            await send_lobby(message.author.mention + "**, has estado inactivo por un tiempo. Por favor dí algo o podrías ser declarado muerto.**")
             try:
-                await client.send_message(message.author, "**You have been idling in #" + client.get_channel(GAME_CHANNEL).name + " for a while. Please say something soon or you might be declared dead.**")
+                await client.send_message(message.author, "**Has estado inactivo en #" + client.get_channel(GAME_CHANNEL).name + " por un rato. Por favor dí algo o podrías ser declarado muerto.**")
             except discord.Forbidden:
                 pass
             msg = await client.wait_for_message(author=message.author, channel=client.get_channel(GAME_CHANNEL), timeout=PLAYER_TIMEOUT2, check=check)
             if msg == None and message.author.id in session[1] and session[0] and session[1][message.author.id][0]:
-                await send_lobby("**" + get_name(message.author.id) + "** didn't get out of bed for a very long time and has been found dead. "
-                                          "The survivors bury the **" + get_role(message.author.id, 'death') + '**.')
+                await send_lobby("**" + get_name(message.author.id) + "** no salió de la cama en mucho tiempo y fue encontrado muerto. "
+                                          "Los sobrevivientes entierran a el **" + get_role(message.author.id, 'death') + '**.')
                 if message.author.id in stasis:
                     stasis[message.author.id] += QUIT_GAME_STASIS
                 else:
@@ -2633,7 +2633,7 @@ async def player_death(player, reason='No reason specified'):
                 lover = o.split(":")[1]
                 if session[0]:
                     if session[1][lover][0] and reason != "fleave all" and not (reason == "lynch" and get_role(player, "role") == "fool"):
-                        await client.send_message(client.get_channel(GAME_CHANNEL), "Saddened by the loss of their lover, **{0}**, a{1} **{2}**, commits suicide.".format(get_name(lover), "n" if get_role(lover, "death").lower()[0] in ['a', 'e', 'i', 'o', 'u'] else "", get_role(lover, "death")))
+                        await client.send_message(client.get_channel(GAME_CHANNEL), "Apenado por la muerte de su amante, **{0}**, un {1} **{2}**, comete suicidio.".format(get_name(lover), "n" if get_role(lover, "death").lower()[0] in ['a', 'e', 'i', 'o', 'u'] else "", get_role(lover, "death")))
                         await player_death(lover, "lover suicide")
     else:
         ingame = 'NOT IN GAME'
@@ -2666,29 +2666,29 @@ async def check_traitor():
     if len(wolf_team_no_cubs) == 0:
         cubs = [x for x in wolf_team_alive if get_role(x, 'role') == 'wolf cub']
         if cubs:
-            await log(1, ', '.join(cubs) + " grew up into wolf")
+            await log(1, ', '.join(cubs) + " creció y ahora es un lobo")
             for cub in cubs:
                 session[1][cub][4].append('wolf_cub')
                 session[1][cub][1] = 'wolf'
                 member = client.get_server(WEREWOLF_SERVER).get_member(cub)
                 if member:
                     try:
-                        await client.send_message(member, "You have grown up into a wolf and vowed to take revenge for your dead parents!")
+                        await client.send_message(member, "Creciste en un lobo y juraste vengar la muerte de tus padres!")
                     except discord.Forbidden:
                         pass
     if len(wolf_team_no_traitors) == 0:
         traitors = [x for x in wolf_team_alive if get_role(x, 'role') == 'traitor']
-        await log(1, ', '.join(traitors) + " turned into wolf")
+        await log(1, ', '.join(traitors) + " se transformó en un lobo")
         for traitor in traitors:
             session[1][traitor][4].append('traitor')
             session[1][traitor][1] = 'wolf'
             member = client.get_server(WEREWOLF_SERVER).get_member(traitor)
             if member:
                 try:
-                    await client.send_message(member, "HOOOOOOOOOWL. You have become... a wolf!\nIt is up to you to avenge your fallen leaders!")
+                    await client.send_message(member, "HOOOOOOOOOWL. Te has convertido en... un lobo!!\nDepende de tí vengar la muerte de tus líderes!")
                 except discord.Forbidden:
                     pass
-        await send_lobby("**The villagers, during their celebrations, are frightened as they hear a loud howl. The wolves are not gone!**")        
+        await send_lobby("**Los aldeanos, durante su celebración, se asustan cuando escuchan un ruidoso aullido. Los lobos no se han ido por completo!**")        
 
 def sort_roles(role_list):
     role_list = list(role_list)
@@ -2729,9 +2729,9 @@ async def run_game():
     
     for stasised in [x for x in stasis if stasis[x] > 0]:
         stasis[stasised] -= 1
-    await send_lobby("<@{}>, Welcome to Werewolf, the popular detective/social party game (a theme of Mafia). "
-                              "Using the **{}** game mode with **{}** players.\nAll players check for PMs from me for instructions. "
-                              "If you did not receive a pm, please let {} know.".format('> <@'.join(sort_players(session[1])),
+    await send_lobby("<@{}>, Bienvenido a Werewolf, el popular juego de deducción social (una variante de Mafia). "
+                              "Usando el modo **{}** con **{}** jugadores.\nTodos los jugadores revisen sus PMs para revisar las instrucciones. "
+                              "Si no recibiste un PM, por favor avísale a {}.".format('> <@'.join(sort_players(session[1])),
                               'roles' if session[6].startswith('roles') else session[6], len(session[1]),
                               client.get_server(WEREWOLF_SERVER).get_member(OWNER_ID).name))
     for i in range(RETRY_RUN_GAME):
@@ -2765,9 +2765,9 @@ async def run_game():
 
 async def game_loop(ses=None):
     if ses:
-        await send_lobby("<@{}>, Welcome to Werewolf, the popular detective/social party game (a theme of Mafia). "
-                              "Using the **{}** game mode with **{}** players.\nAll players check for PMs from me for instructions. "
-                              "If you did not receive a pm, please let {} know.".format('> <@'.join(sort_players(session[1])),
+        await send_lobby("<@{}>, Bienvenido a Werewolf, el popular juego de deducción social (una variante de Mafia). "
+                              "Usando el modo **{}** con **{}** jugadores.\nTodos los jugadores revisen sus PMs para revisar las instrucciones. "
+                              "Si no recibiste un PM, por favor avísale a {}.".format('> <@'.join(sort_players(session[1])),
                               'roles' if session[6].startswith('roles') else session[6], len(session[1]),
                               client.get_server(WEREWOLF_SERVER).get_member(OWNER_ID).name))
         globals()['session'] = ses
@@ -2801,7 +2801,7 @@ async def game_loop(ses=None):
             overwrite = discord.PermissionOverwrite()
             overwrite.send_messages = False
             await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite)
-            await send_lobby("It is now **nighttime**.")
+            await send_lobby("Es de **noche**.")
             warn = False
             # NIGHT LOOP
             while win_condition() == None and not session[2] and session[0]:
@@ -2839,8 +2839,8 @@ async def game_loop(ses=None):
                     session[3][1] = datetime.now() # attempted fix for using !time right as night ends
                 if (datetime.now() - session[3][0]).total_seconds() > NIGHT_WARNING and warn == False:
                     warn = True
-                    await send_lobby("**A few villagers awake early and notice it is still dark outside. "
-                                            "The night is almost over and there are still whispers heard in the village.**")
+                    await send_lobby("**Algunos aldeanos se despiertan temprano y se dan cuenta que aún está oscuro afuera. "
+                                            "La noche ya se acaba y aún se escuchan susurros en la aldea.**")
                 await asyncio.sleep(0.1)
             night_elapsed = datetime.now() - session[3][0]
             session[4][0] += night_elapsed
@@ -2868,10 +2868,10 @@ async def game_loop(ses=None):
                             try:
                                 random_given = "wtf? this is a bug; pls report to admins"
                                 if role == 'shaman':
-                                    random_given = "Because you forgot to give your totem out at night, your **{0}** was randomly given to **{1}**.".format(
+                                    random_given = "Ya que olvidaste dar tu totem durante la noche, tu **{0}** fue entregado al azar a **{1}**.".format(
                                         totem.replace('_', ' '), get_name(totem_target))
                                 elif role == 'crazed shaman':
-                                    random_given = "Because you forgot to give your totem out at night, your totem was randomly given to **{0}**.".format(get_name(totem_target))
+                                    random_given = "Ya que olvidaste dar tu totem durante la noche, tu tótem fue entregado al azar a **{0}**.".format(get_name(totem_target))
                                 await client.send_message(member, random_given)
                             except discord.Forbidden:
                                 pass
@@ -2887,13 +2887,13 @@ async def game_loop(ses=None):
                                 session[1][player2][4].append('lover:' + player1)
                                 try:
                                     await client.send_message(client.get_server(WEREWOLF_SERVER).get_member(player1),
-                                                        "You are in love with **{0}**. If that player dies for any reason, the pain will be too much for you to bear and you will commit suicide.".format(
+                                                        "Estás enamorado de **{0}**. Si ese jugador muere por alguna razón, el dolor será mucho para ti y cometerás suicidio.".format(
                                                             get_name(player2)))
                                 except:
                                     pass
                                 try:
                                     await client.send_message(client.get_server(WEREWOLF_SERVER).get_member(player2),
-                                                        "You are in love with **{0}**. If that player dies for any reason, the pain will be too much for you to bear and you will commit suicide.".format(
+                                                        "Estás enamorado de **{0}**. Si ese jugador muere por alguna razón, el dolor será mucho para ti y cometerás suicidio.".format(
                                                             get_name(player1)))
                                 except:
                                     pass
@@ -2906,7 +2906,7 @@ async def game_loop(ses=None):
                                 break
                         try:
                             await client.send_message(client.get_server(WEREWOLF_SERVER).get_member(player),
-                                                      "Because you forgot to choose lovers at night, two lovers have been selected for you.")
+                                                      "Ya que olvidaste elegir amantes durante la noche, dos amantes fueron seleccionados al azar.")
                         except:
                             pass
                     elif role == 'harlot' and session[1][player][2] == '':
@@ -2915,7 +2915,7 @@ async def game_loop(ses=None):
                         log_msg.append("{0} ({1}) STAY HOME".format(get_name(player), player))
                         if member:
                             try:
-                                await client.send_message(member, "You will stay home tonight.")
+                                await client.send_message(member, "Te quedarás en casa esta noche.")
                             except discord.Forbidden:
                                 pass
                     elif role == 'hunter' and session[1][player][2] == '':
@@ -2924,7 +2924,7 @@ async def game_loop(ses=None):
                         log_msg.append("{0} ({1}) PASS".format(get_name(player), player))
                         if member:
                             try:
-                                await client.send_message(member, "You have chosen to not kill anyone tonight.")
+                                await client.send_message(member, "Elegiste no matar a nadie esta noche.")
                             except discord.Forbidden:
                                 pass
             
@@ -2955,7 +2955,7 @@ async def game_loop(ses=None):
                 log_msg.append("WOLFKILL: " + ', '.join('{} ({})'.format(get_name(x), x) for x in wolf_killed))
                 for k in wolf_killed:
                     if get_role(k, 'role') == 'harlot' and session[1][k][2] != k:
-                        killed_msg += "The wolves' selected victim was not at home last night, and avoided the attack.\n"
+                        killed_msg += "La víctima de los lobos no estaba en casa la noche anterior, y evitó el ataque.\n"
                     else:
                         killed_dict[k] += 1
                         wolf_deaths.append(k)
@@ -2966,11 +2966,11 @@ async def game_loop(ses=None):
                 if visited != harlot:
                     if visited in wolf_killed and not 'protection_totem' in session[1][visited][4]:
                         killed_dict[harlot] += 1
-                        killed_msg += "**{}**, a **harlot**, made the unfortunate mistake of visiting the victim's house last night and is now dead.\n".format(get_name(harlot))
+                        killed_msg += "**{}**, un **harlot**, cometió el desafortunado error de visitar la casa de la víctima y ahora está muerto.\n".format(get_name(harlot))
                         wolf_deaths.append(harlot)
                     elif get_role(visited, 'role') in ACTUAL_WOLVES:
                         killed_dict[harlot] += 1
-                        killed_msg += "**{}**, a **harlot**, made the unfortunate mistake of visiting a wolf's house last night and is now dead.\n".format(get_name(harlot))
+                        killed_msg += "**{}**, un **harlot**, cometió el desafortunado error de visitar la casa de un lobo y ahora está muerto.\n".format(get_name(harlot))
                         wolf_deaths.append(harlot)
             
             # Hunter stuff
@@ -3017,8 +3017,8 @@ async def game_loop(ses=None):
                         try:
                             member = client.get_server(WEREWOLF_SERVER).get_member(player)
                             if member:
-                                await client.send_message(member, "You awake to a sharp pain, and realize you are being attacked by a werewolf! "
-                                                                "Your totem emits a bright flash of light, and you find yourself turning into a werewolf!")
+                                await client.send_message(member, "Te despiertas de un fuerte dolor, y te das cuenta que estás siendo atacado por un lobo! "
+                                                                "Tu tótem emite una luz brillante, y te descubres transformándote en un lobo!")
                         except discord.Forbidden:
                             pass
                     elif session[1][player][4].count('retribution_totem') > 0:
@@ -3033,9 +3033,9 @@ async def game_loop(ses=None):
                             revengekill = random.choice(revenge_targets)
                             killed_dict[revengekill] += 100
                             if killed_dict[revengekill] > 0:
-                                killed_msg += "While being attacked last night, **{}**'s totem emitted a bright flash of light. The dead body of **{}**".format(
+                                killed_msg += "Mientras era atacado la noche anterior, el tótem de **{}** emitió una luz brillante. El cuerpo de **{}**".format(
                                                 get_name(player), get_name(revengekill))
-                                killed_msg += ", a **{}**, was found at the scene.\n".format(get_role(revengekill, 'role'))
+                                killed_msg += ", un **{}**, fue encontrado en la escena.\n".format(get_role(revengekill, 'role'))
 
                 other = session[1][player][4][:]
                 for o in other[:]:
@@ -3068,7 +3068,7 @@ async def game_loop(ses=None):
                             session[1][player][4].remove('bullet')
                             killed_dict[target] += 100
                             if killed_dict[target] > 0:
-                                killed_msg += "Fortunately **{}** had bullets and **{}**, a **{}**, was shot dead.\n".format(
+                                killed_msg += "Afortunadamente **{}** tenía balas y **{}**, un **{}**, fue asesinado.\n".format(
                                     get_name(player), get_name(target), get_role(target, 'death'))
                     if session[1][player][4].count('bullet') > 0:
                         give_gun_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in WOLFCHAT_ROLES]
@@ -3080,9 +3080,9 @@ async def game_loop(ses=None):
                             member = client.get_server(WEREWOLF_SERVER).get_member(give_gun)
                             if member:
                                 try:
-                                    await client.send_message(member, "While searching through **{}**'s belongings, you discover a gun loaded with 1 "
-                                    "silver bullet! You may only use it during the day. If you shoot at a wolf, you will intentionally miss. If you "
-                                    "shoot a villager, it is likely that they will be injured.".format(get_name(player)))
+                                    await client.send_message(member, "Mientras buscabas en las pertenencias de **{}**, encontraste una pistola cargada con 1 "
+                                    "bala de plata! Sólo puedes usarla durante el día. Si le disparas a un lobo, fallarás a propósito. Si le disparas a un aldeano,"
+                                    " es probable que resulte herido.".format(get_name(player)))
                                 except discord.Forbidden:
                                     pass
                 
@@ -3108,11 +3108,11 @@ async def game_loop(ses=None):
             
             if protect_totemed != []:
                 for protected in sort_players(protect_totemed):
-                    killed_msg += "**{0}** was attacked last night, but their totem emitted a brilliant flash of light, blinding their attacker and allowing them to escape.\n".format(
+                    killed_msg += "**{0}** fue atacado la noche anterior, pero su tótem emitió una luz brillante, cegando al atacante y permitiéndole escapar.\n".format(
                                         get_name(protected))
             if death_totemed != []:
                 for ded in sort_players(death_totemed):
-                    killed_msg += "**{0}**'s totem emitted a brilliant flash of light last night. The dead body of **{0}**, a **{1}** was found at the scene.\n".format(
+                    killed_msg += "El tótem de **{0}** emitió una luz brillante la noche anterior. El cadáver de **{0}**, un **{1}**, fue encontrado en la escena.\n".format(
                                         get_name(ded), get_role(ded, 'death'))
                     killed_players.remove(ded)
             if revengekill != "" and revengekill in killed_players:
@@ -3127,13 +3127,13 @@ async def game_loop(ses=None):
                 if not (protect_totemed or death_totemed or [x for x in wolf_killed if get_role(x, 'role') == 'harlot']):
                     killed_msg += random.choice(lang['nokills']) + '\n'
             elif len(killed_players) == 1:
-                killed_msg += "The dead body of **{}**, a **{}**, was found. Those remaining mourn the tragedy.\n".format(get_name(killed_players[0]), get_role(killed_players[0], 'death'))
+                killed_msg += "El cadáver de **{}**, un **{}**, fue encontrado. Los sobrevivientes lloran la tragedia.\n".format(get_name(killed_players[0]), get_role(killed_players[0], 'death'))
             else:
-                killed_msg += "The dead bodies of **{}**, and **{}**, a **{}**, were found. Those remaining mourn the tragedy.\n".format(
+                killed_msg += "Los cadáveres de **{}**, y **{}**, un **{}**, fueron encontrados. Los sobrevivientes lloran la tragedia.\n".format(
                     '**, **'.join(get_name(x) + '**, a **' + get_role(x, 'death') for x in killed_players[:-1]), get_name(killed_players[-1]), get_role(killed_players[-1], 'death'))
 
             if session[0] and win_condition() == None:
-                await send_lobby("Night lasted **{0:02d}:{1:02d}**. The villagers wake up and search the village.\n\n{2}".format(
+                await send_lobby("La noche duró **{0:02d}:{1:02d}**. Los aldeanos se despiertan e investigan la aldea.\n\n{2}".format(
                                                                                         night_elapsed.seconds // 60, night_elapsed.seconds % 60, killed_msg))
             if session[0] and win_condition() == None:
                 totem_holders = sort_players(totem_holders)
@@ -3182,7 +3182,7 @@ async def game_loop(ses=None):
             await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), discord.utils.get(client.get_server(WEREWOLF_SERVER).roles, name=PLAYERS_ROLE_NAME), overwrite) 
             if session[0] and win_condition() == None:
                                            
-                await send_lobby("It is now **daytime**. Use `{}lynch <player>` to vote to lynch <player>.".format(BOT_PREFIX))
+                await send_lobby("Es de **día**. Usa `{}lynch <player>` para votar para linchar a <player>.".format(BOT_PREFIX))
 
             for player in session[1]:
                 if session[1][player][0] and 'blinding_totem' in session[1][player][4]:
@@ -3193,9 +3193,9 @@ async def game_loop(ses=None):
                         try:
                             member = client.get_server(WEREWOLF_SERVER).get_member(player)
                             if member:
-                                await client.send_message(member, "Your totem emits a brilliant flash of light. "
-                                                                "It seems like you cannot see anything! Perhaps "
-                                                                "you should just rest during the day...")
+                                await client.send_message(member, "Tu tótem emite una luz brillante. "
+                                                                "Parece que no puedes ver nada! A lo mejor "
+                                                                "deberías descansar durante el día...")
                         except discord.Forbidden:
                             pass
 
@@ -3221,10 +3221,9 @@ async def game_loop(ses=None):
                     session[2] = False
                 if (datetime.now() - session[3][1]).total_seconds() > DAY_WARNING and warn == False:
                     warn = True
-                    await send_lobby("**As the sun sinks inexorably toward the horizon, turning the lanky pine "
-                                            "trees into fire-edged silhouettes, the villagers are reminded that very little time remains for them to reach a "
-                                            "decision; if darkness falls before they have done so, the majority will win the vote. No one will be lynched if "
-                                            "there are no votes or an even split.**")
+                    await send_lobby("** A medida que el sol se esconde en el horizonte, volviendo los pinos en siluetas con bordes de fuego, a los aldeanos "
+                                            "se les recuerda que queda poco tiempo para alcanzar una decisión; si la noche llega antes de que lo hagan, la mayoría"
+                                            "ganará el voto. Nadie será linchado si no hay votos o hay un empate.**")
                 await asyncio.sleep(0.1)
             if not lynched_player and win_condition() == None and session[0]:
                 vote_dict = get_votes(totem_dict)
@@ -3243,16 +3242,16 @@ async def game_loop(ses=None):
             if lynched_player and win_condition() == None and session[0]:
                 if lynched_player == 'abstain':
                     for player in [x for x in totem_dict if session[1][x][0] and totem_dict[x] < 0]:
-                        lynched_msg += "**{}** meekly votes to not lynch anyone today.\n".format(get_name(player))
-                    lynched_msg += "The village has agreed to not lynch anyone today."
+                        lynched_msg += "**{}** voa por no linchar a nadie hoy.\n".format(get_name(player))
+                    lynched_msg += "La aldea ha acordado no linchar a nadie hoy."
                     await send_lobby(lynched_msg)
                 else:
                     for player in [x for x in totem_dict if session[1][x][0] and totem_dict[x] > 0 and x != lynched_player]:
-                        lynched_msg += "**{}** impatiently votes to lynch **{}**.\n".format(get_name(player), get_name(lynched_player))
+                        lynched_msg += "**{}** vota por linchar a **{}**.\n".format(get_name(player), get_name(lynched_player))
                     lynched_msg += '\n'
                     if 'revealing_totem' in session[1][lynched_player][4]:
-                        lynched_msg += 'As the villagers prepare to lynch **{0}**, their totem emits a brilliant flash of light! When the villagers are able to see again, '
-                        lynched_msg += 'they discover that {0} has escaped! The left-behind totem seems to have taken on the shape of a **{1}**.'
+                        lynched_msg += 'Mientras los aldeanos se preparaban para linchar a **{0}**, su tótem emite una luz brillante! Cuando los aldeanos recobran la vista, '
+                        lynched_msg += 'descubren que {0} escapó! El tótem tomó la forma de un **{1}**.'
                         lynched_msg = lynched_msg.format(get_name(lynched_player), get_role(lynched_player, 'role'))
                         await send_lobby(lynched_msg)
                     else:
@@ -3260,7 +3259,7 @@ async def game_loop(ses=None):
                         await send_lobby(lynched_msg)
                         await player_death(lynched_player, 'lynch')
                     if get_role(lynched_player, 'role') == 'fool' and 'revealing_totem' not in session[1][lynched_player][4]:
-                        win_msg = "The fool has been lynched, causing them to win!\n\n" + end_game_stats()
+                        win_msg = "El fool fue linchado, haciendo que gane!\n\n" + end_game_stats()
                         o = []
                         for n in session[1][lynched_player][4]:
                             if n.startswith('lover:'):
@@ -3274,11 +3273,11 @@ async def game_loop(ses=None):
                         await end_game(win_msg, [lynched_player] + lovers)
                         return
             elif lynched_player == None and win_condition() == None and session[0]:
-                await send_lobby("Not enough votes were cast to lynch a player.")
+                await send_lobby("No se emitieron suficientes votos para linchar a un jugador.")
             # BETWEEN DAY AND NIGHT
             session[2] = False
             if session[0] and win_condition() == None:
-                await send_lobby("Day lasted **{0:02d}:{1:02d}**. The villagers, exhausted from the day's events, go to bed.".format(
+                await send_lobby("El día duró **{0:02d}:{1:02d}**. Los aldeanos, exhaustos por los sucesos del día, se van a dormir.".format(
                                                                     day_elapsed.seconds // 60, day_elapsed.seconds % 60))
                 for player in session[1]:
                     session[1][player][4][:] = [x for x in session[1][player][4] if x not in [
@@ -3303,7 +3302,7 @@ async def start_votes(player):
     else:
         for player in session[1]:
             session[1][player][1] = ''
-        await send_lobby("Not enough votes to start, resetting start votes.")
+        await send_lobby("No hay suficientes votos para comenzar el juego, reseteando los votos.")
         
 async def rate_limit(message):
     if not (message.channel.is_private or message.content.startswith(BOT_PREFIX)) or message.author.id in ADMINS or message.author.id == OWNER_ID:
@@ -3346,8 +3345,8 @@ async def game_start_timeout_loop():
     if not session[0] and len(session[1]) > 0:
         session[0] = True
         await client.change_presence(game=client.get_server(WEREWOLF_SERVER).me.game, status=discord.Status.online)
-        await send_lobby("{0}, the game has taken too long to start and has been cancelled. "
-                          "If you are still here and would like to start a new game, please do `!join` again.".format(PLAYERS_ROLE.mention))
+        await send_lobby("{0}, el juego se demoró mucho en comenzar y ha sido cancelado. "
+                          "Si todavía estás aquí y te gustaría iniciar un juego nuevo, por favor escribe `{p}join` de nuevo.".format(PLAYERS_ROLE.mention,p=BOT_PREFIX))
         perms = client.get_channel(GAME_CHANNEL).overwrites_for(client.get_server(WEREWOLF_SERVER).default_role)
         perms.send_messages = True
         await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), client.get_server(WEREWOLF_SERVER).default_role, perms)
