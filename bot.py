@@ -785,7 +785,7 @@ async def cmd_stats(message, parameters):
                     traitorvill -= 1
                     # could be traitor or villager
                     if 'traidor' in role_dict:
-                        role_dict['traidor'][0] = max(0, role_dict['traitor'][0] - 1)
+                        role_dict['traidor'][0] = max(0, role_dict['traidor'][0] - 1)
                         if role_dict['traidor'][1] > traitorvill:
                             role_dict['traidor'][1] = traitorvill
 
