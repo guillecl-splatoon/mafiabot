@@ -701,7 +701,7 @@ async def _send_role_info(player, sendrole=True):
                         if session[1][player][2] in totems:
                             totem = session[1][player][2]
                             msg.append("You have the **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
-                    if role in ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'vidente',
+                    if role in ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorcerer', 'vidente',
                                 'oracle', 'shaman', 'prostituto/a', 'hunter', 'augur', 'detective', 'crazed shaman']:
                         msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
@@ -741,7 +741,7 @@ async def cmd_stats(message, parameters):
         traitorvill = 0
         traitor_turned = False
         for other in [session[1][x][4] for x in session[1]]:
-            if 'traitor' in other:
+            if 'traidor' in other:
                 traitor_turned = True
                 break
         for role in roles: # Fixes !stats crashing with !frole of roles not in game
@@ -751,7 +751,7 @@ async def cmd_stats(message, parameters):
             # Get maximum numbers for all roles
             role_dict[get_role(player, 'role')][0] += 1
             role_dict[get_role(player, 'role')][1] += 1
-            if get_role(player, 'role') in ['villager', 'traitor']:
+            if get_role(player, 'role') in ['villager', 'traidor']:
                 traitorvill += 1
 
         #reply_msg += "Total roles: " + ", ".join(sorted([x + ": " + str(roles[x][3][len(session[1]) - MIN_PLAYERS]) for x in roles if roles[x][3][len(session[1]) - MIN_PLAYERS] > 0])).rstrip(", ") + '\n'
@@ -767,9 +767,9 @@ async def cmd_stats(message, parameters):
                 del role_dict[role]
 
         if traitor_turned:
-            role_dict['lobo'][0] += role_dict['traitor'][0]
-            role_dict['lobo'][1] += role_dict['traitor'][1]
-            role_dict['traitor'] = [0, 0]
+            role_dict['lobo'][0] += role_dict['traidor'][0]
+            role_dict['lobo'][1] += role_dict['traidor'][1]
+            role_dict['traidor'] = [0, 0]
 
         for player in session[1]:
             # Subtract dead players
@@ -777,17 +777,17 @@ async def cmd_stats(message, parameters):
                 role = get_role(player, 'role')
                 reveal = get_role(player, 'deathstats')
 
-                if role == 'traitor' and traitor_turned:
+                if role == 'traidor' and traitor_turned:
                     # player died as traitor but traitor turn message played, so subtract from wolves
                     reveal = 'lobo'
 
                 if reveal == 'villager':
                     traitorvill -= 1
                     # could be traitor or villager
-                    if 'traitor' in role_dict:
-                        role_dict['traitor'][0] = max(0, role_dict['traitor'][0] - 1)
-                        if role_dict['traitor'][1] > traitorvill:
-                            role_dict['traitor'][1] = traitorvill
+                    if 'traidor' in role_dict:
+                        role_dict['traidor'][0] = max(0, role_dict['traitor'][0] - 1)
+                        if role_dict['traidor'][1] > traitorvill:
+                            role_dict['traidor'][1] = traitorvill
 
                     role_dict['villager'][0] = max(0, role_dict['villager'][0] - 1)
                     if role_dict['villager'][1] > traitorvill:
@@ -2244,7 +2244,7 @@ def win_condition():
     elif teams['village'] + teams['neutral'] <= teams['wolf']:
         win_team = 'wolf'
         win_lore = 'El número de aldeanos no heridos es igual o menor que el número de lobos! Los lobos dominan a los aldeanos restantes y se los comen.'
-    elif len([x for x in session[1] if session[1][x][0] and get_role(x, 'role') in ACTUAL_WOLVES + ['traitor']]) == 0:
+    elif len([x for x in session[1] if session[1][x][0] and get_role(x, 'role') in ACTUAL_WOLVES + ['traidor']]) == 0:
         # old version: teams['wolf'] == 0 and injured_wolves == 0:
         win_team = 'village'
         win_lore = 'Todos los lobos murieron! Los aldeanos restantes juntan los cadáveres de los lobos muertos y los queman.'
@@ -2270,9 +2270,9 @@ def end_game_stats():
     for role in roles:
         role_dict[role] = []
     for player in session[1]:
-        if 'traitor' in session[1][player][4]:
-            session[1][player][1] = 'traitor'
-            session[1][player][4].remove('traitor')
+        if 'traidor' in session[1][player][4]:
+            session[1][player][1] = 'traidor'
+            session[1][player][4].remove('traidor')
         if 'wolf_cub' in session[1][player][4]:
             session[1][player][1] = 'wolf cub'
             session[1][player][4].remove('wolf_cub')
@@ -2422,14 +2422,14 @@ def get_role(player, level):
             return seen_role
         elif level == 'death':
             returnstring = ''
-            if role == 'traitor':
+            if role == 'traidor':
                 returnstring += 'villager'
             else:
                 returnstring += role
             return returnstring
         elif level == 'deathstats':
             returnstring = ''
-            if role == 'traitor':
+            if role == 'traidor':
                 returnstring += 'villager'
             else:
                 returnstring += role
@@ -2644,7 +2644,7 @@ async def player_death(player, reason='No reason specified'):
     if session[0] and reason not in ['idle', 'fleave', 'leave', 'fstop', 'game end', 'fleave all']:
         if get_role(player, 'role') == 'wolf cub':
             for p in session[1]:
-                if session[1][p][0] and get_role(p, 'role') in ACTUAL_WOLVES + ['traitor']:
+                if session[1][p][0] and get_role(p, 'role') in ACTUAL_WOLVES + ['traidor']:
                     session[1][p][4].append('angry')
     await log(0, "{} ({}) PLAYER DEATH {} FOR {}".format(get_name(player), player, ingame, reason))
 
@@ -2653,15 +2653,15 @@ async def check_traitor():
         return
     wolf_cub_turned = False
     for other in [session[1][x][4] for x in session[1]]:
-        if 'traitor' in other:
+        if 'traidor' in other:
             # traitor already turned
             return
     wolf_team_alive = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
-        'traitor'] + ACTUAL_WOLVES]
+        'traidor'] + ACTUAL_WOLVES]
     if len(wolf_team_alive) == 0:
         # no wolves alive; don't play traitor turn message
         return
-    wolf_team_no_traitors = [x for x in wolf_team_alive if get_role(x, 'role') != 'traitor']
+    wolf_team_no_traitors = [x for x in wolf_team_alive if get_role(x, 'role') != 'traidor']
     wolf_team_no_cubs = [x for x in wolf_team_no_traitors if get_role(x, 'role') != 'wolf cub']
     if len(wolf_team_no_cubs) == 0:
         cubs = [x for x in wolf_team_alive if get_role(x, 'role') == 'wolf cub']
@@ -2677,10 +2677,10 @@ async def check_traitor():
                     except discord.Forbidden:
                         pass
     if len(wolf_team_no_traitors) == 0:
-        traitors = [x for x in wolf_team_alive if get_role(x, 'role') == 'traitor']
+        traitors = [x for x in wolf_team_alive if get_role(x, 'role') == 'traidor']
         await log(1, ', '.join(traitors) + " se transformó en un lobo")
         for traitor in traitors:
-            session[1][traitor][4].append('traitor')
+            session[1][traitor][4].append('traidor')
             session[1][traitor][1] = 'lobo'
             member = client.get_server(WEREWOLF_SERVER).get_member(traitor)
             if member:
@@ -3398,7 +3398,7 @@ roles = {'lobo' : ['wolf', 'lobos', "Your job is to kill all of the villagers. T
          'werekitten' : ['wolf', 'werekittens', "You are like a normal wolf, except due to your cuteness, you are seen as a villager "
                                                 "and gunners will always miss when they shoot you. Use `kill <player>` in private message "
                                                 "to vote to kill <player>."],
-         'traitor' : ['wolf', 'traitors', "You are exactly like a villager, but you are part of the wolf team. Only the detective can reveal your true "
+         'traidor' : ['wolf', 'traidores', "You are exactly like a villager, but you are part of the wolf team. Only the detective can reveal your true "
                                           "identity. Once all other wolves die, you will turn into a wolf."],
          'sorcerer' : ['wolf', 'sorcerers', "You may use `observe <player>` in pm during the night to observe someone and determine if they "
                                             "are the vidente, oracle, or augur. You are seen as a villager; only detectives can reveal your true identity."],
@@ -3444,7 +3444,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'sorcerer' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -3487,7 +3487,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'sorcerer' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -3530,7 +3530,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'sorcerer' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
@@ -3565,7 +3565,7 @@ gamemodes = {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
             'lobo' :
             [1, 1, 1, 1, 1, 1,  2, 2, 2, 3, 3, 3, 3],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3594,7 +3594,7 @@ gamemodes = {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
             'lobo' :
             [1, 1, 1, 1, 1, 1,  2, 2, 2, 3, 3, 3, 3],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3621,7 +3621,7 @@ gamemodes = {
             #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16
             'lobo' :
             [1, 1, 1, 1, 1, 1,  1, 1, 2, 2, 1, 1, 2],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 2, 2, 2],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3678,7 +3678,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'sorcerer' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3725,7 +3725,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'traitor' :
+            'traidor' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'sorcerer' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3762,7 +3762,7 @@ gamemodes = {
 gamemodes['belunga']['roles'] = dict(gamemodes['default']['roles'])
 
 VILLAGE_ROLES_ORDERED = ['vidente', 'oracle', 'shaman', 'prostituto/a', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
-WOLF_ROLES_ORDERED = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'cultist']
+WOLF_ROLES_ORDERED = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorcerer', 'cultist']
 NEUTRAL_ROLES_ORDERED = ['crazed shaman', 'fool']
 TEMPLATES_ORDERED = ['cursed villager', 'gunner']
 totems = {'death_totem' : 'The player who is given this totem will die tonight.',
@@ -3779,10 +3779,10 @@ totems = {'death_totem' : 'The player who is given this totem will die tonight.'
                            'vision will return the opposite of what they are. If a vidente/oracle is given this totem, '
                            'all of their visions will return the opposite.'}
 SHAMAN_TOTEMS = ['death_totem', 'protection_totem', 'revealing_totem', 'influence_totem', 'impatience_totem', 'pacifism_totem']
-ROLES_SEEN_VILLAGER = ['werekitten', 'traitor', 'sorcerer', 'cultist', 'villager', 'fool']
+ROLES_SEEN_VILLAGER = ['werekitten', 'traidor', 'sorcerer', 'cultist', 'villager', 'fool']
 ROLES_SEEN_WOLF = ['lobo', 'werecrow', 'wolf cub', 'cursed']
 ACTUAL_WOLVES = ['lobo', 'werecrow', 'wolf cub', 'werekitten']
-WOLFCHAT_ROLES = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer']
+WOLFCHAT_ROLES = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorcerer']
 
 ########### END POST-DECLARATION STUFF #############
 client.loop.create_task(do_rate_limit_loop())
