@@ -1103,7 +1103,7 @@ async def cmd_votes(message, parameters):
             for voted in [x for x in vote_dict if x != 'abstain']:
                 reply_msg += "{} ({}) ({} vote{}): {}\n".format(
                     get_name(voted), voted, len(vote_dict[voted]), '' if len(vote_dict[voted]) == 1 else 's', ', '.join(['{} ({})'.format(get_name(x), x) for x in vote_dict[voted]]))
-            reply_msg += "{} voto{} por abstención: {}\n".format(
+            reply_msg += "{} voto{} por abstención {}\n".format(
                 len(vote_dict['abstain']), '' if len(vote_dict['abstain']) == 1 else 's', ', '.join(['{} ({})'.format(get_name(x), x) for x in vote_dict['abstain']]))            
             reply_msg += "```"
         await reply(message, reply_msg)
@@ -3221,9 +3221,9 @@ async def game_loop(ses=None):
                     session[2] = False
                 if (datetime.now() - session[3][1]).total_seconds() > DAY_WARNING and warn == False:
                     warn = True
-                    await send_lobby("** A medida que el sol se esconde en el horizonte, volviendo los pinos en siluetas con bordes de fuego, a los aldeanos "
+                    await send_lobby("** A medida que el sol se esconde en el horizonte, transformando los pinos en siluetas con bordes de fuego, a los aldeanos "
                                             "se les recuerda que queda poco tiempo para alcanzar una decisión; si la noche llega antes de que lo hagan, la mayoría"
-                                            "ganará el voto. Nadie será linchado si no hay votos o hay un empate.**")
+                                            " ganará el voto. Nadie será linchado si no hay votos o hay un empate.**")
                 await asyncio.sleep(0.1)
             if not lynched_player and win_condition() == None and session[0]:
                 vote_dict = get_votes(totem_dict)
