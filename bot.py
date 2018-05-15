@@ -702,7 +702,7 @@ async def _send_role_info(player, sendrole=True):
                             totem = session[1][player][2]
                             msg.append("You have the **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
                     if role in ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'vidente',
-                                'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'crazed shaman']:
+                                'oracle', 'shaman', 'prostituto/a', 'hunter', 'augur', 'detective', 'crazed shaman']:
                         msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
                         msg.append("Tiens una pistola y **{}** bala{}. Usa el comando "
@@ -1446,7 +1446,7 @@ async def cmd_getrole(message, parameters):
 @cmd('visit', [2, 0], "```\n{0}visit <player>\n\nIf you are a harlot, visits <player>. You can stay home by visiting yourself. "
                       "You will die if you visit a wolf or the victim of the wolves.```")
 async def cmd_visit(message, parameters):
-    if not session[0] or message.author.id not in session[1] or session[1][message.author.id][1] != 'harlot' or not session[1][message.author.id][0]:
+    if not session[0] or message.author.id not in session[1] or session[1][message.author.id][1] != 'prostituto/a' or not session[1][message.author.id][0]:
         return
     if session[2]:
         await reply(message, "You may only visit during the night.")
@@ -1849,7 +1849,7 @@ async def cmd_observe(message, parameters):
                             await asyncio.sleep(0.1)
                         if 'observe' in session[1][message.author.id][4]:
                             session[1][message.author.id][4].remove('observe')
-                        if get_role(player, 'role') in ['vidente', 'oracle', 'harlot', 'hunter', 'augur']\
+                        if get_role(player, 'role') in ['vidente', 'oracle', 'prostituto/a', 'hunter', 'augur']\
                             and session[1][player][2] in set(session[1]) - set(player)\
                             or get_role(player, 'role') in ['shaman', 'crazed shaman']\
                             and session[1][player][2] in session[1]:
@@ -1950,12 +1950,12 @@ async def cmd_pass(message, parameters):
     role = get_role(message.author.id, 'role')
     if not session[0] or message.author.id not in session[1] or role not in COMMANDS_FOR_ROLE['pass'] or not session[1][message.author.id][0]:
         return
-    if session[2] and role in ('harlot', 'hunter'):
+    if session[2] and role in ('prostituto/a', 'hunter'):
         await reply(message, "Solo puedes pasar durante la noche.")
         return
     if session[1][message.author.id][2] != '':
         return
-    if role == 'harlot':
+    if role == 'prostituto/a':
         session[1][message.author.id][2] = message.author.id
         await reply(message, "Elegiste quedarte en casa durante la noche.")
     elif role == 'hunter':
@@ -2812,7 +2812,7 @@ async def game_loop(ses=None):
                     role = get_role(player, 'role')
                     if session[1][player][0]:
                         if role in ['lobo', 'werecrow', 'werekitten', 'sorcerer',
-                                    'vidente', 'oracle', 'harlot', 'hunter', 'augur']:
+                                    'vidente', 'oracle', 'prostituto/a', 'hunter', 'augur']:
                             end_night = end_night and (session[1][player][2] != '')
                         if role in ['shaman', 'crazed shaman']:
                             end_night = end_night and (session[1][player][2] in session[1])
@@ -2909,7 +2909,7 @@ async def game_loop(ses=None):
                                                       "Ya que olvidaste elegir amantes durante la noche, dos amantes fueron seleccionados al azar.")
                         except:
                             pass
-                    elif role == 'harlot' and session[1][player][2] == '':
+                    elif role == 'prostituto/a' and session[1][player][2] == '':
                         member = client.get_server(WEREWOLF_SERVER).get_member(player)
                         session[1][player][2] = player
                         log_msg.append("{0} ({1}) STAY HOME".format(get_name(player), player))
@@ -2954,23 +2954,23 @@ async def game_loop(ses=None):
                 wolf_killed = sort_players(sorted_votes[:num_kills])
                 log_msg.append("WOLFKILL: " + ', '.join('{} ({})'.format(get_name(x), x) for x in wolf_killed))
                 for k in wolf_killed:
-                    if get_role(k, 'role') == 'harlot' and session[1][k][2] != k:
+                    if get_role(k, 'role') == 'prostituto/a' and session[1][k][2] != k:
                         killed_msg += "La víctima de los lobos no estaba en casa la noche anterior, y evitó el ataque.\n"
                     else:
                         killed_dict[k] += 1
                         wolf_deaths.append(k)
 
             # Harlot stuff
-            for harlot in [x for x in alive_players if get_role(x, 'role') == 'harlot']:
+            for harlot in [x for x in alive_players if get_role(x, 'role') == 'prostituto/a']:
                 visited = session[1][harlot][2]
                 if visited != harlot:
                     if visited in wolf_killed and not 'protection_totem' in session[1][visited][4]:
                         killed_dict[harlot] += 1
-                        killed_msg += "**{}**, un **harlot**, cometió el desafortunado error de visitar la casa de la víctima y ahora está muerto.\n".format(get_name(harlot))
+                        killed_msg += "**{}**, un/a **prostituto/a**, cometió el desafortunado error de visitar la casa de la víctima y ahora está muerto.\n".format(get_name(harlot))
                         wolf_deaths.append(harlot)
                     elif get_role(visited, 'role') in ACTUAL_WOLVES:
                         killed_dict[harlot] += 1
-                        killed_msg += "**{}**, un **harlot**, cometió el desafortunado error de visitar la casa de un lobo y ahora está muerto.\n".format(get_name(harlot))
+                        killed_msg += "**{}**, un/a **prostituto/a**, cometió el desafortunado error de visitar la casa de un lobo y ahora está muerto.\n".format(get_name(harlot))
                         wolf_deaths.append(harlot)
             
             # Hunter stuff
@@ -2995,7 +2995,7 @@ async def game_loop(ses=None):
                 death_tots = 0
                 death_tots += session[1][player][4].count('death_totem')
                 killed_dict[player] += death_tots
-                if get_role(player, 'role') != 'harlot' or session[1][player][2] == player:
+                if get_role(player, 'role') != 'prostituto/a' or session[1][player][2] == player:
                     # fix for harlot with protect
                     prot_tots = session[1][player][4].count('protection_totem')
                     killed_dict[player] -= prot_tots
@@ -3024,7 +3024,7 @@ async def game_loop(ses=None):
                     elif session[1][player][4].count('retribution_totem') > 0:
                         revenge_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
                             'lobo', 'werecrow', 'werekitten']]
-                        if get_role(player, 'role') == 'harlot' and get_role(session[1][player][2], 'role') in [
+                        if get_role(player, 'role') == 'prostituto/a' and get_role(session[1][player][2], 'role') in [
                             'lobo', 'werecrow', 'wolf cub', 'werekitten']:
                             revenge_targets[:] = [session[1][player][2]]
                         else:
@@ -3056,7 +3056,7 @@ async def game_loop(ses=None):
                     if random.random() < GUNNER_REVENGE_WOLF:
                         revenge_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
                             'lobo', 'werecrow', 'werekitten']]
-                        if get_role(player, 'role') == 'harlot' and get_role(session[1][player][2], 'role') in [
+                        if get_role(player, 'role') == 'prostituto/a' and get_role(session[1][player][2], 'role') in [
                             'lobo', 'werecrow', 'wolf cub', 'werekitten']:
                             revenge_targets[:] = [session[1][player][2]]
                         else:
@@ -3124,7 +3124,7 @@ async def game_loop(ses=None):
                     killed_players.remove(player)
 
             if len(killed_players) == 0:
-                if not (protect_totemed or death_totemed or [x for x in wolf_killed if get_role(x, 'role') == 'harlot']):
+                if not (protect_totemed or death_totemed or [x for x in wolf_killed if get_role(x, 'role') == 'prostituto/a']):
                     killed_msg += random.choice(lang['nokills']) + '\n'
             elif len(killed_players) == 1:
                 killed_msg += "El cadáver de **{}**, un **{}**, fue encontrado. Los sobrevivientes lloran la tragedia.\n".format(get_name(killed_players[0]), get_role(killed_players[0], 'death'))
@@ -3380,10 +3380,10 @@ async def backup_settings_loop():
 COMMANDS_FOR_ROLE = {'see' : ['vidente', 'oracle', 'augur'],
                      'kill' : ['lobo', 'werecrow', 'werekitten', 'hunter'],
                      'give' : ['shaman'],
-                     'visit' : ['harlot'],
+                     'visit' : ['prostituto/a'],
                      'shoot' : ['gunner'],
                      'observe' : ['werecrow', 'sorcerer'],
-                     'pass' : ['harlot', 'hunter'],
+                     'pass' : ['prostituto/a', 'hunter'],
                      'id' : ['detective'],
                      'choose' : ['matchmaker']}
 GAMEPLAY_COMMANDS = ['join', 'j', 'start', 'vote', 'lynch', 'v', 'abstain', 'abs', 'nl', 'stats', 'leave', 'q', 'role', 'roles']
@@ -3408,7 +3408,7 @@ roles = {'lobo' : ['wolf', 'lobos', "Your job is to kill all of the villagers. T
          'shaman' : ['village', 'shamans', "You select a player to receive a totem each night by using `give <player>`. You may give a totem to yourself, but you may not give the same"
                                            " person a totem two nights in a row. If you do not give the totem to anyone, it will be given to a random player. "
                                            "To see your current totem, use the command `myrole`."],
-         'harlot' : ['village', 'harlots', "You may spend the night with one player each night by using `visit <player>`. If you visit a victim of a wolf, or visit a wolf, "
+         'prostituto/a' : ['village', 'prostitutos', "You may spend the night with one player each night by using `visit <player>`. If you visit a victim of a wolf, or visit a wolf, "
                                            "you will die. You may visit yourself to stay home."],
          'hunter' : ['village', 'hunters', "Your job is to help kill the wolves. Once per game, you may kill another player using `kill <player>`. "
                                            "If you do not wish to kill anyone tonight, use `pass` instead."],
@@ -3454,7 +3454,7 @@ gamemodes = {
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'shaman' :
             [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'hunter' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
@@ -3497,7 +3497,7 @@ gamemodes = {
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'shaman' :
             [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'hunter' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
@@ -3540,7 +3540,7 @@ gamemodes = {
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'shaman' :
             [0, 0, 0, 0, 0, 0,  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2],
             'hunter' :
             [0, 0, 0, 0, 0, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -3573,7 +3573,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [3, 4, 4, 4, 3, 4,  3, 2, 3, 1, 2, 1, 1],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 1, 1, 1,  2, 2, 2, 3, 3, 3, 4],
             'villager' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3600,7 +3600,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'vidente' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
-            'harlot' :
+            'prostituto/a' :
             [3, 4, 4, 4, 3, 4,  3, 2, 3, 1, 2, 1, 1],
             'matchmaker' :
             [0, 0, 0, 1, 1, 1,  2, 2, 2, 3, 3, 3, 4],
@@ -3629,7 +3629,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
             'villager' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0],
@@ -3690,7 +3690,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'hunter' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3737,7 +3737,7 @@ gamemodes = {
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'shaman' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'harlot' :
+            'prostituto/a' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'hunter' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -3761,7 +3761,7 @@ gamemodes = {
 }
 gamemodes['belunga']['roles'] = dict(gamemodes['default']['roles'])
 
-VILLAGE_ROLES_ORDERED = ['vidente', 'oracle', 'shaman', 'harlot', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
+VILLAGE_ROLES_ORDERED = ['vidente', 'oracle', 'shaman', 'prostituto/a', 'hunter', 'augur', 'detective', 'matchmaker', 'villager']
 WOLF_ROLES_ORDERED = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traitor', 'sorcerer', 'cultist']
 NEUTRAL_ROLES_ORDERED = ['crazed shaman', 'fool']
 TEMPLATES_ORDERED = ['cursed villager', 'gunner']
