@@ -680,12 +680,12 @@ async def _send_role_info(player, sendrole=True):
                     msg = []
                     living_players = sort_players(x for x in session[1] if session[1][x][0])
                     living_players_string = ['{} ({})'.format(get_name(x), x) for x in living_players]
-                    if role in COMMANDS_FOR_ROLE['kill'] and roles[role][0] == 'lobo':
+                    if role in COMMANDS_FOR_ROLE['kill'] and roles[role][0] == 'wolf':
                         if 'angry' in session[1][player][4]:
                             num_kills = session[1][player][4].count('angry')
                             msg.append("Esta noche estás **enojado**, y puedes matar {} personajes usando `kill {}`.\n".format(
                                 num_kills + 1, ' AND '.join('player' + str(x + 1) for x in range(num_kills + 1))))
-                    if roles[role][0] == 'lobo' and role not in ['cultist']:
+                    if roles[role][0] == 'wolf' and role not in ['cultist']:
                         living_players_string = []
                         for plr in living_players:
                             temprole = get_role(plr, 'role')
@@ -988,8 +988,8 @@ async def cmd_kill(message, parameters):
                 if player == message.author.id:
                     await reply(message, "El suicido es malo para ti.")
                     return
-                elif get_role(message.author.id, 'actualteam') == 'lobo' and \
-                get_role(player, 'actualteam') == 'lobo' and get_role(player, 'role') != 'cultist':
+                elif get_role(message.author.id, 'actualteam') == 'wolf' and \
+                get_role(player, 'actualteam') == 'wolf' and get_role(player, 'role') != 'cultist':
                     await reply(message, "No puedes matar a otro lobo.")
                     return
                 elif not session[1][player][0]:
@@ -2213,7 +2213,7 @@ def win_condition():
     for player in session[1]:
         if session[1][player][0]:
             if 'injured' in session[1][player][4]:
-                if get_role(player, 'actualteam') == 'lobo' and session[1][player][1] != 'cultist':
+                if get_role(player, 'actualteam') == 'wolf' and session[1][player][1] != 'cultist':
                     injured_wolves += 1
             else:
                 if session[1][player][1] == 'cultist':
@@ -2394,7 +2394,7 @@ def get_role(player, level):
         role = session[1][player][1]
         templates = session[1][player][3]
         if level == 'team':
-            if roles[role][0] == 'lobo':
+            if roles[role][0] == 'wolf':
                 if not role in ROLES_SEEN_VILLAGER:
                     return "lobo"
             return "village"
@@ -2818,7 +2818,7 @@ async def game_loop(ses=None):
                             end_night = end_night and (session[1][player][2] in session[1])
                         if role in ['matchmaker']:
                             end_night = end_night and 'match' not in session[1][player][4]
-                        if roles[role][0] == 'lobo' and role in COMMANDS_FOR_ROLE['kill']:
+                        if roles[role][0] == 'wolf' and role in COMMANDS_FOR_ROLE['kill']:
                             num_wolves += 1
                             num_kills = session[1][player][4].count('angry') + 1
                             t = session[1][player][2]
