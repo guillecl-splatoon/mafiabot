@@ -1449,10 +1449,10 @@ async def cmd_visit(message, parameters):
     if not session[0] or message.author.id not in session[1] or session[1][message.author.id][1] != 'prostituto/a' or not session[1][message.author.id][0]:
         return
     if session[2]:
-        await reply(message, "You may only visit during the night.")
+        await reply(message, "Sólo puedes visitar a alguien durante la noche.")
         return
     if session[1][message.author.id][2]:
-        await reply(message, "You are already spending the night with **{}**.".format(get_name(session[1][message.author.id][2])))
+        await reply(message, "Ya estás pasando la noche con **{}**.".format(get_name(session[1][message.author.id][2])))
     else:
         if parameters == "":
             await reply(message, roles[session[1][message.author.id][1]][2])
