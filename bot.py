@@ -1411,7 +1411,7 @@ async def cmd_notify(message, parameters):
         return
     notify = message.author.id in notify_me
     if parameters == '':
-        await sendlobby("{} PING! Parece que alguien quiere jugar Werewolves".format(WEREWOLF_NOTIFY_ROLE.mention))
+        await send_lobby("{} PING! Parece que alguien quiere jugar Werewolves".format(WEREWOLF_NOTIFY_ROLE.mention))
     elif parameters in ['true', '+', 'yes']:
         if notify:
             await reply(message, "You are already in the notify list.")
