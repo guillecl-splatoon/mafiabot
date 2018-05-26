@@ -3398,7 +3398,7 @@ roles = {'lobo' : ['lobo', 'lobos', "Tu tarea es matar a todos los aldeanos. Esc
                                                 "para votar para matarlo."],
          'traidor' : ['lobo', 'traidores', "Eres exactamente como un aldeano, pero eres parte de los lobos. Sólo el detective puede revelar tu "
                                           "verdadera identidad. Una vez que todos los otros lobos mueren, te conviertes en un lobo."],
-         'sorcerer' : ['lobo', 'sorcerers', "Eres parte de los lobos. Puedes usar `observe <jugador>` en mensaje privadoin para determinar si son el
+         'sorcerer' : ['lobo', 'sorcerers', "Eres parte de los lobos. Puedes usar `observe <jugador>` en mensaje privadoin para determinar si son el "
                                             "vidente, oracle, o el augur. Eres visto como aldeano; sólo un detective puede revelar tu verdadera identidad."],
          'cultist' : ['lobo', 'cultists', "Tu trabajo es ayudar a los lobos a matar a todos los aldeanos."],
          'vidente' : ['village', 'videntes', "Tu trabajo es detectar a los lobos; puedes tener una visión por noche. Escribe `see <jugador>` en mensaje privado para ver su rol."],
@@ -3421,11 +3421,11 @@ roles = {'lobo' : ['lobo', 'lobos', "Tu tarea es matar a todos los aldeanos. Esc
          'cursed villager' : ['template', 'cursed villagers', "Este es un modificador oculto y es visto como lobo por el vidente. Los roles vistos como lobos, el vidente y el fool no pueden ser maldecidos."],
          'gunner' : ['template', 'gunners', "Este modificador le entrega una pistola a los jugadores. Escribe `{0}shoot <jugador>` en el lobby durante el día para dispararle a jugador. "
                                             "Si eres un aldeano y le disparas a un lobo, este morirá. En los otros casos hay una posibilidad de matarlos, de herirlos "
-                                            "o que la pistola explote. Si eres un lobo y le disparás a un lobo, fallarás a propósito."],
+                                            "o que la pistola explote. Si eres un lobo y le disparás a un lobo, fallarás a propósito.".format(BOT_PREFIX)],
          'matchmaker' : ['village', 'matchmakers', "Puedes seleccionar a dos jugadores para ser amantes con `{0}choose <jugador1> and <jugador2>`."
                                                    " Si un amante muere, el otro también lo hará. Puedes elegirte como uno de los amantes."
                                                    " Sólo puedes elegir amantes durante la primera noche."
-                                                   " Si no eliges amantes, serán elegidos al azar y no sabrás quiénes son (a menos que tú seas uno)."]}
+                                                   " Si no eliges amantes, serán elegidos al azar y no sabrás quiénes son (a menos que tú seas uno).".format(BOT_PREFIX)]}
 
 gamemodes = {
     'default' : {
