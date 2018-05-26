@@ -268,7 +268,7 @@ async def cmd_join(message, parameters):
         return
     if message.author.id in stasis and stasis[message.author.id] > 0:
         await reply(message, "Estás bloqueado por **{}** juego{}. Por favor no rompas las reglas, no te quedes inactivo o uses {p}leave durante un juego.".format(
-                                stasis[message.author.id], '' if stasis[message.author.id] == 1 else 's', p=BOX_PREFIX))
+                                stasis[message.author.id], '' if stasis[message.author.id] == 1 else 's', p=BOT_PREFIX))
         return
     if len(session[1]) >= MAX_PLAYERS:
         await reply(message, random.choice(lang['maxplayers']).format(MAX_PLAYERS))
@@ -700,12 +700,12 @@ async def _send_role_info(player, sendrole=True):
                     elif role == 'shaman':
                         if session[1][player][2] in totems:
                             totem = session[1][player][2]
-                            msg.append("You have the **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
+                            msg.append("Tienes el **{}**. {}\n".format(totem.replace('_', ' '), totems[totem]))
                     if role in ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorcerer', 'vidente',
                                 'oracle', 'shaman', 'prostituto/a', 'hunter', 'augur', 'detective', 'crazed shaman']:
-                        msg.append("Living players: ```basic\n" + '\n'.join(living_players_string) + '\n```')
+                        msg.append("Jugadores vivos: ```basic\n" + '\n'.join(living_players_string) + '\n```')
                     if 'gunner' in templates:
-                        msg.append("Tiens una pistola y **{}** bala{}. Usa el comando "
+                        msg.append("Tienes una pistola y **{}** bala{}. Usa el comando "
                                    "`{}role gunner` para más información.".format(
                             session[1][player][4].count('bullet'), '' if session[1][player][4].count('bullet') == 1 else 's',
                             BOT_PREFIX))
@@ -724,12 +724,12 @@ async def cmd_myrole(message, parameters):
 async def cmd_stats(message, parameters):
     #TODO: rewrite
     if session[0]:
-        reply_msg = "Ahora es de **" + ("día" if session[2] else "noche") + ". Usando el modo de juego **{}**.".format(
+        reply_msg = "Ahora es de **" + ("día" if session[2] else "noche") + "**. Usando el modo de juego **{}**.".format(
             'roles' if session[6].startswith('roles') else session[6])
-        reply_msg += "\n**" + str(len(session[1])) + "** players playing: **" + str(len([x for x in session[1] if session[1][x][0]])) + "** alive, "
-        reply_msg += "**" + str(len([x for x in session[1] if not session[1][x][0]])) + "** dead\n"
-        reply_msg += "```basic\nLiving players:\n" + "\n".join(get_name(x) + ' (' + x + ')' for x in sort_players(session[1]) if session[1][x][0]) + '\n'
-        reply_msg += "Dead players:\n" + "\n".join(get_name(x) + ' (' + x + ')' for x in sort_players(session[1]) if not session[1][x][0]) + '\n'
+        reply_msg += "\n**" + str(len(session[1])) + "** jugadores: **" + str(len([x for x in session[1] if session[1][x][0]])) + "** vivo(s), "
+        reply_msg += "**" + str(len([x for x in session[1] if not session[1][x][0]])) + "** muerto(s)\n"
+        reply_msg += "```basic\nJugadores vivos:\n" + "\n".join(get_name(x) + ' (' + x + ')' for x in sort_players(session[1]) if session[1][x][0]) + '\n'
+        reply_msg += "Jugadores muertos:\n" + "\n".join(get_name(x) + ' (' + x + ')' for x in sort_players(session[1]) if not session[1][x][0]) + '\n'
 
         if session[6] in ('random',):
             reply_msg += '\n!stats is disabled for the {} gamemode.```'.format(session[6])
@@ -3388,44 +3388,44 @@ GAMEPLAY_COMMANDS = ['join', 'j', 'start', 'vote', 'lynch', 'v', 'abstain', 'abs
 GAMEPLAY_COMMANDS += list(COMMANDS_FOR_ROLE)
 
 # {role name : [team, plural, description]}
-roles = {'lobo' : ['lobo', 'lobos', "Your job is to kill all of the villagers. Type `kill <player>` in private message to kill them."],
-         'werecrow' : ['lobo', 'werecrows', "You are part of the wolfteam. Use `observe <player>` during the night to see if they were in bed or not. "
-                                            "You may also use `kill <player>` to kill them."],
-         'wolf cub' : ['lobo', 'wolf cubs', "You are part of the wolfteam. While you cannot kill anyone, the other wolves will "
-                                            "become enraged if you die and will get two kills the following night."],
-         'werekitten' : ['lobo', 'werekittens', "You are like a normal wolf, except due to your cuteness, you are seen as a villager "
-                                                "and gunners will always miss when they shoot you. Use `kill <player>` in private message "
-                                                "to vote to kill <player>."],
-         'traidor' : ['lobo', 'traidores', "You are exactly like a villager, but you are part of the wolf team. Only the detective can reveal your true "
-                                          "identity. Once all other wolves die, you will turn into a wolf."],
-         'sorcerer' : ['lobo', 'sorcerers', "You may use `observe <player>` in pm during the night to observe someone and determine if they "
-                                            "are the vidente, oracle, or augur. You are seen as a villager; only detectives can reveal your true identity."],
-         'cultist' : ['lobo', 'cultists', "Your job is to help the wolves kill all of the villagers."],
-         'vidente' : ['village', 'videntes', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see their role."],
-         'oracle' : ['village', 'oracles', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see whether or not they are a wolf."],
-         'shaman' : ['village', 'shamans', "You select a player to receive a totem each night by using `give <player>`. You may give a totem to yourself, but you may not give the same"
-                                           " person a totem two nights in a row. If you do not give the totem to anyone, it will be given to a random player. "
-                                           "To see your current totem, use the command `myrole`."],
-         'prostituto/a' : ['village', 'prostitutos', "You may spend the night with one player each night by using `visit <player>`. If you visit a victim of a wolf, or visit a wolf, "
-                                           "you will die. You may visit yourself to stay home."],
-         'hunter' : ['village', 'hunters', "Your job is to help kill the wolves. Once per game, you may kill another player using `kill <player>`. "
-                                           "If you do not wish to kill anyone tonight, use `pass` instead."],
-         'augur' : ['village', 'augurs', "Your job is to detect the wolves; you may have a vision once per night. Type `see <player>` in private message to see which team they are on."],
-         'detective' : ['village', 'detectives', "Your job is to determine all of the wolves and traitors. During the day, you may use `id <player>` in private message "
-                                                 "to determine their true identity. However you risk a {}% chance of revealing your role to the wolves every time you use your ability.".format(int(DETECTIVE_REVEAL_CHANCE * 100))],
-         'villager' : ['village', 'villagers', "Your job is to lynch all of the wolves."],
-         'crazed shaman' : ['neutral', 'crazed shamans', "You select a player to receive a random totem each night by using `give <player>`. You may give a totem to yourself, "
-                                                         "but you may not give the same person a totem two nights in a row. If you do not give the totem to anyone, "
-                                                         "it will be given to a random player. You win if you are alive by the end of the game."],
-         'fool' : ['neutral', 'fools', "You become the sole winner if you are lynched during the day. You cannot win otherwise."],
-         'cursed villager' : ['template', 'cursed villagers', "This template is hidden and is seen as a wolf by the vidente. Roles normally seen as wolf, the seer, and the fool cannot be cursed."],
-         'gunner' : ['template', 'gunners', "This template gives the player a gun. Type `{0}shoot <player>` in channel during the day to shoot <player>. "
-                                            "If you are a villager and shoot a wolf, they will die. Otherwise, there is a chance of killing them, injuring "
-                                            "them, or the gun exploding. If you are a wolf and shoot at a wolf, you will intentionally miss."],
-         'matchmaker' : ['village', 'matchmakers', "You can select two players to be lovers with `{0}choose <player1> and <player2>`."
-                                                   " If one lover dies, the other will as well. You may select yourself as one of the lovers."
-                                                   " You may only select lovers during the first night."
-                                                   " If you do not select lovers, they will be randomly selected and you will not be told who they are (unless you are one of them)."]}
+roles = {'lobo' : ['lobo', 'lobos', "Tu tarea es matar a todos los aldeanos. Escribe `kill <jugador>` en mensaje privado para votar para matarlos"],
+         'werecrow' : ['lobo', 'werecrows', "Eres parte de los lobos. Escribe `observe <jugador>` en mensaje privado durante la noche para saber si "
+                                            "estuvieron durmiendo o no. También puedes usar `kill <jugador>` para votar para matarlo."],
+         'wolf cub' : ['lobo', 'wolf cubs', "Eres parte de los lobos. Aunque no puedes matar a nadie, los otros lobos se enfaderán "
+                                            "si mueres y podrán matar a dos aldeanos la próxima noche."],
+         'werekitten' : ['lobo', 'werekittens', "Eres como un lobo normal, excepto que por tu ternura, eres visto como un aldeano "
+                                                "y los gunners siempre fallarán cuando te disparen. Escribe `kill <jugador>` en mensaje privado "
+                                                "para votar para matarlo."],
+         'traidor' : ['lobo', 'traidores', "Eres exactamente como un aldeano, pero eres parte de los lobos. Sólo el detective puede revelar tu "
+                                          "verdadera identidad. Una vez que todos los otros lobos mueren, te conviertes en un lobo."],
+         'sorcerer' : ['lobo', 'sorcerers', "Eres parte de los lobos. Puedes usar `observe <jugador>` en mensaje privadoin para determinar si son el
+                                            "vidente, oracle, o el augur. Eres visto como aldeano; sólo un detective puede revelar tu verdadera identidad."],
+         'cultist' : ['lobo', 'cultists', "Tu trabajo es ayudar a los lobos a matar a todos los aldeanos."],
+         'vidente' : ['village', 'videntes', "Tu trabajo es detectar a los lobos; puedes tener una visión por noche. Escribe `see <jugador>` en mensaje privado para ver su rol."],
+         'oracle' : ['village', 'oracles', "Tu trabajo es detectar a los lobos; puedes tener una visión por noche. Escribe `see <jugador>` en mensaje privado para ver si son lobos o no."],
+         'shaman' : ['village', 'shamans', "Tu trabajo es seleccionar a un jugador para que reciba un tótem usando `give <jugador>`. Puedes darte un tótem a ti mismo, pero no puedes darle un tótem dos noches "
+                                           "seguidas a un mismo jugador. Si no le entregas el tótem a nadie, será entregado a un jugador al azar. "
+                                           "Para ver tu tótem actual, usa el comando `myrole`."],
+         'prostituto/a' : ['village', 'prostitutos', "Puedes pasar la noche con algún jugador escribiendo `visit <jugador>`. Si visitas a una víctima de los lobos, o visitas a un lobo, "
+                                           "morirás. Puedes visitarte a ti mismo para quedarte en casa."],
+         'hunter' : ['village', 'hunters', "Tu trabajo es ayudar a matar a los lobos. Una vez por juego, puedes matar a otro jugador usando `kill <jugador>`. "
+                                           "Si no quieres matar a nadie una noche, usa `pass`."],
+         'augur' : ['village', 'augurs', "Tu trabajo es detectar a los lobos; puedes tener una visión por noche. Escribe `see <jugador>` en mensaje privado para ver a qué equipo pertenecen."],
+         'detective' : ['village', 'detectives', "Tu trabajo es descubrir a todos los lobos y traidores. Durante el día, puedes usar `id <jugador>` en mensaje privado para revelar "
+                                                 "su verdadera identidad. Sin embargo, hay una probabilidad de {}% de revelar tu rol a los lobos cada vez que usas tu habilidad.".format(int(DETECTIVE_REVEAL_CHANCE * 100))],
+         'villager' : ['village', 'villagers', "Tu trabajo es linchar a todos los lobos."],
+         'crazed shaman' : ['neutral', 'crazed shamans', "Tut trabajo es seleccionar a un jugador para entregarle un tótem al azar usando `give <jugador>`. Puedes darte un tótem a ti mismo, "
+                                                         "pero no puedes darle un tótem dos noches seguidas a un mismo jugador. Si no le entregas el tótem a nadie, será entregado a un jugador"
+                                                         " al azar. Ganas si estás vivo al término del juego."],
+         'fool' : ['neutral', 'fools', "Tu trabajo es lograr que te linchen durante el día, con lo que ganas. No puedes ganar de otra forma."],
+         'cursed villager' : ['template', 'cursed villagers', "Este es un modificador oculto y es visto como lobo por el vidente. Los roles vistos como lobos, el vidente y el fool no pueden ser maldecidos."],
+         'gunner' : ['template', 'gunners', "Este modificador le entrega una pistola a los jugadores. Escribe `{0}shoot <jugador>` en el lobby durante el día para dispararle a jugador. "
+                                            "Si eres un aldeano y le disparas a un lobo, este morirá. En los otros casos hay una posibilidad de matarlos, de herirlos "
+                                            "o que la pistola explote. Si eres un lobo y le disparás a un lobo, fallarás a propósito."],
+         'matchmaker' : ['village', 'matchmakers', "Puedes seleccionar a dos jugadores para ser amantes con `{0}choose <jugador1> and <jugador2>`."
+                                                   " Si un amante muere, el otro también lo hará. Puedes elegirte como uno de los amantes."
+                                                   " Sólo puedes elegir amantes durante la primera noche."
+                                                   " Si no eliges amantes, serán elegidos al azar y no sabrás quiénes son (a menos que tú seas uno)."]}
 
 gamemodes = {
     'default' : {
