@@ -1414,7 +1414,7 @@ async def cmd_notify(message, parameters):
         # await send_lobby("{} PING! Parece que alguien quiere jugar Werewolves".format(WEREWOLF_NOTIFY_ROLE.mention))
         online = ["<@{}>".format(x) for x in notify_me if is_online(x) and x not in session[1] and\
         (x in stasis and stasis[x] == 0 or x not in stasis)]
-        await client.send_message(message.channel, "{} PING! Alguien quiere jugar Werewolves!".format(''.join(online)), cleanmessage=False)
+        await client.send_message(message.channel, "{} PING! Alguien quiere jugar Werewolves!".format(''.join(online)))
     elif parameters in ['true', '+', 'yes']:
         if notify:
             await reply(message, "You are already in the notify list.")
