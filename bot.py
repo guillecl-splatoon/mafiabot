@@ -21,7 +21,7 @@ ADMINS_ROLE = None
 WEREWOLF_NOTIFY_ROLE = None
 ratelimit_dict = {}
 pingif_dict = {}
-notify_me = []
+notify_me = {}
 stasis = {}
 commands = {}
 
@@ -39,7 +39,7 @@ if os.path.isfile(NOTIFY_FILE):
         notify_me = json.load(notify_file)
 else:
     with open(NOTIFY_FILE, 'a+') as notify_file:
-        nofity_file.write('[]')
+        nofity_file.write('{}')
 
 if os.path.isfile(STASIS_FILE):
     with open(STASIS_FILE, 'r') as stasis_file:
@@ -1419,20 +1419,20 @@ async def cmd_notify(message, parameters):
     notify = message.author.id in notify_me
     if parameters == '':
         # await send_lobby("{} PING! Parece que alguien quiere jugar Werewolves".format(WEREWOLF_NOTIFY_ROLE.mention))
-        online = ["<@{}>".format(x) for x in notify_me if is_online(x) and x not in session[1] and\
+        online = ["<@{}>".format(x) for x in notify_me if is_online(x) and x not in session[1] and notify_me[x] > 0 and\
         (x in stasis and stasis[x] == 0 or x not in stasis)]
         await client.send_message(message.channel, "{} PING! Alguien quiere jugar Werewolves!".format(''.join(online)))
     elif parameters in ['true', '+', 'yes']:
         if notify:
             await reply(message, "You are already in the notify list.")
             return
-        notify_me.append(message.author.id)
+        notify_me[message.author.id] = 1
         await reply(message, "You will be notified by {}notify.".format(BOT_PREFIX))
     elif parameters in ['false', '-', 'no']:
         if not notify:
             await reply(message, "You are not in the notify list.")
             return
-        notify_me.remove(message.author.id)
+        notify_me[message.author.id] = 0
         await reply(message, "You will not be notified by {}notify.".format(BOT_PREFIX))
     else:
         await reply(message, commands['notify'][2].format(BOT_PREFIX))        
