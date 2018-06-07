@@ -30,9 +30,16 @@ wait_timer = datetime.now()
 
 faftergame = None
 starttime = None
-with open(NOTIFY_FILE, 'a+') as notify_file:
-    notify_file.seek(0)
-    notify_me = notify_file.read().split(',')
+#with open(NOTIFY_FILE, 'a+') as notify_file:
+#    notify_file.seek(0)
+#    notify_me = notify_file.read().split(',')
+
+if os.path.isfile(NOTIFY_FILE):
+    with open(NOTIFY_FILE, 'r') as notify_file:
+        notify_me = json.load(notify_file)
+else:
+    with open(NOTIFY_FILE, 'a+') as notify_file:
+        nofity_file.write('[]')
 
 if os.path.isfile(STASIS_FILE):
     with open(STASIS_FILE, 'r') as stasis_file:
@@ -3371,8 +3378,10 @@ async def wait_timer_loop():
 async def backup_settings_loop():
     while not client.is_closed:
         print("BACKING UP SETTINGS")
+#        with open(NOTIFY_FILE, 'w') as notify_file:
+#            notify_file.write(','.join([x for x in notify_me if x != '']))
         with open(NOTIFY_FILE, 'w') as notify_file:
-            notify_file.write(','.join([x for x in notify_me if x != '']))
+            json.dump(notify_me, notify_file)
         with open(STASIS_FILE, 'w') as stasis_file:
             json.dump(stasis, stasis_file)
         await asyncio.sleep(BACKUP_INTERVAL)
