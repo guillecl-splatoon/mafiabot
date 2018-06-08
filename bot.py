@@ -3382,7 +3382,8 @@ async def wait_timer_loop():
 
 async def backup_settings_loop():
     while not client.is_closed:
-        print("BACKING UP SETTINGS")
+        #print("BACKING UP SETTINGS")
+        await log(2, "BACKING UP SETTINGS")
         #with open(NOTIFY_FILE, 'w') as notify_file:
         #    notify_file.write(','.join([x for x in notify_me if x != '']))
         with open(NOTIFY_FILE, 'w') as notify_file:
