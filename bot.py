@@ -33,12 +33,14 @@ starttime = None
 #with open(NOTIFY_FILE, 'a+') as notify_file:
 #    notify_file.seek(0)
 #    notify_me = notify_file.read().split(',')
-if os.path.isfile(NOTIFY_FILE):
-    with open(NOTIFY_FILE, 'r') as notify_file:
-        notify_me = json.load(notify_file)
-else:
-    with open(NOTIFY_FILE, 'a+') as notify_file:
-        notify_file.write('{}')
+#if os.path.isfile(NOTIFY_FILE):
+#    with open(NOTIFY_FILE, 'r') as notify_file:
+#        notify_me = json.load(notify_file)
+#else:
+#    with open(NOTIFY_FILE, 'a+') as notify_file:
+#        notify_file.write('{}')
+
+notify_me = json.load(open(NOTIFY_FILE).read())
 
 if os.path.isfile(STASIS_FILE):
     with open(STASIS_FILE, 'r') as stasis_file:
