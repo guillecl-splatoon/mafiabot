@@ -39,8 +39,8 @@ starttime = None
 #else:
 #    with open(NOTIFY_FILE, 'a+') as notify_file:
 #        notify_file.write('{}')
-
-notify_me = json.load(open(NOTIFY_FILE).read())
+with open (NOTIFY_FILE, 'r') as notify_file:
+       notify_me = json.load(notify_file)
 
 if os.path.isfile(STASIS_FILE):
     with open(STASIS_FILE, 'r') as stasis_file:
