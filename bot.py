@@ -1,4 +1,4 @@
-import discord
+mport discord
 import asyncio
 import aiohttp
 import os
@@ -50,7 +50,6 @@ else:
         stasis_file.write('{}')
 
 random.seed(datetime.now())
-client.loop.create_task(backup_settings_loop())
 
 def get_jsonparsed_data(url):
     try:
@@ -3803,6 +3802,7 @@ WOLFCHAT_ROLES = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorc
 
 ########### END POST-DECLARATION STUFF #############
 client.loop.create_task(do_rate_limit_loop())
+client.loop.create_task(backup_settings_loop())
 try:
     client.loop.run_until_complete(client.start(TOKEN))
 finally:
