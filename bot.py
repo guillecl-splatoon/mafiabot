@@ -3381,6 +3381,7 @@ async def wait_timer_loop():
         await asyncio.sleep(0.5)
 
 async def backup_settings_loop():
+    await log(2, "BACKUP LOOP IS RUNNING")
     while not client.is_closed:
         #print("BACKING UP SETTINGS")
         await log(2, "BACKING UP SETTINGS")
