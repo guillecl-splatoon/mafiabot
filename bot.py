@@ -1422,7 +1422,7 @@ async def cmd_notify(message, parameters):
         # await send_lobby("{} PING! Parece que alguien quiere jugar Werewolves".format(WEREWOLF_NOTIFY_ROLE.mention))
         #online = ["<@{}>".format(x) for x in notify_me if is_online(x) and x not in session[1] and notify_me[x] > 0 and\
         #(x in stasis and stasis[x] == 0 or x not in stasis)]
-        online = ["<@{}>".format(x) for x in notify_me.keys() if is_online(x) and x not in session[1] and notify_me[x] > 0 and\
+        online = ["<@{}>".format(x) for x in client.get_server(WEREWOLF_SERVER).members if WEREWOLF_NOTIFY_ROLE in x.roles if is_online(x) and x not in session[1] and notify_me[x] > 0 and\
         (x in stasis and stasis[x] == 0 or x not in stasis)]
         await client.send_message(message.channel, "{} PING! Alguien quiere jugar Werewolves!".format(''.join(online)))
     elif parameters in ['true', '+', 'yes']:
@@ -1430,14 +1430,16 @@ async def cmd_notify(message, parameters):
             await reply(message, "You are already in the notify list.")
             return
         #notify_me.append(message.author.id)
-        notify_me[message.author.id] = 1
+        #notify_me[message.author.id] = 1
+        await client.add_roles(member, WEREWOLF_NOTIFY_ROLE)
         await reply(message, "You will be notified by {}notify.".format(BOT_PREFIX))
     elif parameters in ['false', '-', 'no']:
         if not notify:
             await reply(message, "You are not in the notify list.")
             return
         #notify_me.remove(message.author.id)
-        notify_me[message.author.id] = 0
+        #notify_me[message.author.id] = 0
+        await client.remove_roles(member, WEREWOLF_NOTIFY_ROLE)
         await reply(message, "You will not be notified by {}notify.".format(BOT_PREFIX))
     else:
         await reply(message, commands['notify'][2].format(BOT_PREFIX))        
