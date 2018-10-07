@@ -3808,7 +3808,7 @@ WOLFCHAT_ROLES = ['lobo', 'werecrow', 'wolf cub', 'werekitten', 'traidor', 'sorc
 client.loop.create_task(do_rate_limit_loop())
 client.loop.create_task(backup_settings_loop())
 try:
-    client.loop.run_until_complete(client.start(TOKEN))
+#    client.loop.run_until_complete(client.start(TOKEN))
 finally:
     try:
         try:
